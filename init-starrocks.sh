@@ -20,12 +20,12 @@ NC='\033[0m' # No Color
 
 # Configuration
 STARROCKS_DATA_DIR="/var/lib/starrocks"
-FE_CONTAINER="starrocks-fe"
-BE_CONTAINER="starrocks-be"
+FE_CONTAINER="starrocks-fe-1"
+BE_CONTAINERS=("starrocks-be-1" "starrocks-be-2")
 INIT_CONTAINER="starrocks-init"
 FE_PORT=9030
 FE_HTTP_PORT=8030
-BE_HTTP_PORT=8040
+BE_HTTP_PORTS=(8040 8041)
 
 ################################################################################
 # Helper Functions
@@ -95,7 +95,16 @@ prepare_system() {
     # Check required commands
     print_info "Checking required commands..."
     check_command "docker"
-    check_command "docker-compose"
+    # Check for docker compose (new) or docker-compose (legacy)
+    if command -v "docker" &> /dev/null && docker compose version &> /dev/null; then
+        DOCKER_COMPOSE="docker compose"
+    elif command -v "docker-compose" &> /dev/null; then
+        DOCKER_COMPOSE="docker-compose"
+    else
+        print_error "Neither 'docker compose' nor 'docker-compose' is available"
+        exit 1
+    fi
+    print_success "Using: $DOCKER_COMPOSE"
     check_command "curl"
 
     # Check Docker daemon
@@ -163,39 +172,46 @@ start_services() {
 
     # Start services
     print_info "Starting Docker Compose services..."
-    docker-compose up -d starrocks-fe starrocks-be starrocks-init
+    $DOCKER_COMPOSE up -d starrocks-fe-1 starrocks-be-1 starrocks-be-2 starrocks-init
 
     print_info "Waiting for containers to initialize..."
-    sleep 5
+    sleep 10
 
-    # Check container status
+    # Check FE container status
     if ! docker ps | grep -q "$FE_CONTAINER"; then
         print_error "FE container is not running"
-        docker-compose logs starrocks-fe | tail -20
+        $DOCKER_COMPOSE logs starrocks-fe-1 | tail -20
         exit 1
     fi
 
-    if ! docker ps | grep -q "$BE_CONTAINER"; then
-        print_error "BE container is not running"
-        docker-compose logs starrocks-be | tail -20
-        exit 1
-    fi
+    # Check BE container status
+    for be_container in "${BE_CONTAINERS[@]}"; do
+        if ! docker ps | grep -q "$be_container"; then
+            print_error "$be_container is not running"
+            $DOCKER_COMPOSE logs "$be_container" | tail -20
+            exit 1
+        fi
+    done
 
     print_success "Containers started successfully"
 
     # Wait for FE health
     wait_for_health "http://localhost:$FE_HTTP_PORT/api/health" "StarRocks FE" || {
         print_error "FE health check failed. Showing logs:"
-        docker-compose logs --tail=50 starrocks-fe
+        $DOCKER_COMPOSE logs --tail=50 starrocks-fe-1
         exit 1
     }
 
     # Wait for BE health
-    wait_for_health "http://localhost:$BE_HTTP_PORT/api/health" "StarRocks BE" || {
-        print_error "BE health check failed. Showing logs:"
-        docker-compose logs --tail=50 starrocks-be
-        exit 1
-    }
+    for i in "${!BE_CONTAINERS[@]}"; do
+        be_container="${BE_CONTAINERS[$i]}"
+        be_port="${BE_HTTP_PORTS[$i]}"
+        wait_for_health "http://localhost:$be_port/api/health" "$be_container" || {
+            print_error "$be_container health check failed. Showing logs:"
+            $DOCKER_COMPOSE logs --tail=50 "$be_container"
+            exit 1
+        }
+    done
 
     print_success "All services are healthy!"
 
@@ -216,11 +232,11 @@ start_services() {
 }
 
 ################################################################################
-# Step 3: Register Backend
+# Step 3: Initialize Database and User
 ################################################################################
 
-register_backend() {
-    print_section "Step 3: Registering Backend with Frontend"
+init_database_and_user() {
+    print_section "Step 3: Initializing Database and User"
 
     # Check if FE is accessible
     if ! docker exec $FE_CONTAINER mysql -h 127.0.0.1 -P $FE_PORT -u root -e "SELECT 1" > /dev/null 2>&1; then
@@ -230,38 +246,130 @@ register_backend() {
 
     print_success "Connected to FE MySQL interface"
 
-    # Check if BE is already registered
+    # Check if database already exists
+    DB_EXISTS=$(docker exec $FE_CONTAINER mysql -h 127.0.0.1 -P $FE_PORT -u root -sN -e "SHOW DATABASES LIKE 'datawiz'" 2>/dev/null || echo "")
+
+    if [ -n "$DB_EXISTS" ]; then
+        print_warning "Database 'datawiz' already exists"
+    else
+        print_info "Creating database 'datawiz'..."
+        docker exec $FE_CONTAINER mysql -h 127.0.0.1 -P $FE_PORT -u root -e "CREATE DATABASE IF NOT EXISTS datawiz;" || {
+            print_error "Failed to create database"
+            exit 1
+        }
+        print_success "Database 'datawiz' created successfully"
+    fi
+
+    # Check if user already exists
+    USER_EXISTS=$(docker exec $FE_CONTAINER mysql -h 127.0.0.1 -P $FE_PORT -u root -sN -e "SELECT COUNT(*) FROM mysql.user WHERE user='datawiz_admin' AND host='%'" 2>/dev/null || echo "0")
+
+    if [ "$USER_EXISTS" -gt 0 ]; then
+        print_warning "User 'datawiz_admin' already exists"
+    else
+        print_info "Creating user 'datawiz_admin'..."
+        docker exec $FE_CONTAINER mysql -h 127.0.0.1 -P $FE_PORT -u root -e "CREATE USER IF NOT EXISTS 'datawiz_admin'@'%' IDENTIFIED BY '0jqhC3X541tP1RmR.5';" || {
+            print_error "Failed to create user"
+            exit 1
+        }
+        print_success "User 'datawiz_admin' created successfully"
+    fi
+
+    # Grant privileges
+    print_info "Granting privileges to 'datawiz_admin'..."
+    docker exec $FE_CONTAINER mysql -h 127.0.0.1 -P $FE_PORT -u root -e "GRANT ALL PRIVILEGES ON datawiz.* TO 'datawiz_admin'@'%' WITH GRANT OPTION;" || {
+        print_error "Failed to grant privileges on datawiz"
+        exit 1
+    }
+
+    # Grant information_schema access
+    docker exec $FE_CONTAINER mysql -h 127.0.0.1 -P $FE_PORT -u root -e "GRANT SELECT ON information_schema.* TO 'datawiz_admin'@'%';" || {
+        print_warning "Failed to grant information_schema access (may already be granted)"
+    }
+
+    # Grant admin role for table creation capability
+    docker exec $FE_CONTAINER mysql -h 127.0.0.1 -P $FE_PORT -u root -e "GRANT ROLE admin TO 'datawiz_admin'@'%';" 2>/dev/null || {
+        print_warning "Admin role grant not available (normal for some StarRocks versions)"
+    }
+
+    print_success "User privileges granted successfully"
+
+    # Verify database exists
+    print_info "Verifying database creation..."
+    docker exec $FE_CONTAINER mysql -h 127.0.0.1 -P $FE_PORT -u root -e "SHOW DATABASES LIKE 'datawiz';" 2>/dev/null || {
+        print_warning "Could not verify database"
+    }
+
+    print_success "Database 'datawiz' and user 'datawiz_admin' initialized successfully!"
+    echo ""
+    print_info "Access Information:"
+    echo "  Database: datawiz"
+    echo "  Username: datawiz_admin (or use 'root' for admin access)"
+    echo "  Password: 0jqhC3X541tP1RmR.5"
+    echo "  Host: 127.0.0.1 or localhost"
+    echo "  Port: 9030"
+    echo ""
+    print_info "For table creation with 2 backend nodes, use replication_num='1':"
+    echo "  CREATE TABLE table_name (...) PROPERTIES('replication_num'='1');"
+    echo ""
+    print_warning "Note: datawiz_admin has read/write access. Use 'root' for DDL operations."
+}
+
+
+################################################################################
+# Step 4: Register Backend
+################################################################################
+
+register_backend() {
+    print_section "Step 4: Registering Backend with Frontend"
+
+    # Check if FE is accessible
+    if ! docker exec $FE_CONTAINER mysql -h 127.0.0.1 -P $FE_PORT -u root -e "SELECT 1" > /dev/null 2>&1; then
+        print_error "Cannot connect to FE MySQL interface"
+        exit 1
+    fi
+
+    print_success "Connected to FE MySQL interface"
+
+    # Check if BEs are already registered
     BE_COUNT=$(docker exec $FE_CONTAINER mysql -h 127.0.0.1 -P $FE_PORT -u root -sN -e "SHOW BACKENDS" 2>/dev/null | wc -l || echo "0")
 
-    if [ "$BE_COUNT" -gt 0 ]; then
-        print_warning "Backend already registered (count: $BE_COUNT)"
+    if [ "$BE_COUNT" -ge 2 ]; then
+        print_warning "Backends already registered (count: $BE_COUNT)"
         print_info "Showing current backends:"
         docker exec $FE_CONTAINER mysql -h 127.0.0.1 -P $FE_PORT -u root -e "SHOW BACKENDS\G"
         return 0
     fi
 
-    # Register the BE
-    print_info "Registering BE node..."
-    docker exec $FE_CONTAINER mysql -h 127.0.0.1 -P $FE_PORT -u root -e "ALTER SYSTEM ADD BACKEND 'starrocks-be:9050';"
+    # Register all BE nodes
+    print_info "Registering BE nodes..."
+    
+    # Register each BE
+    for be_container in "${BE_CONTAINERS[@]}"; do
+        print_info "Registering $be_container..."
+        docker exec $FE_CONTAINER mysql -h 127.0.0.1 -P $FE_PORT -u root -e "ALTER SYSTEM ADD BACKEND '$be_container:9050';" || {
+            print_warning "Failed to register $be_container (may already exist)"
+        }
+    done
 
     # Wait a moment for registration
-    sleep 3
+    sleep 5
 
     # Verify registration
     BE_COUNT=$(docker exec $FE_CONTAINER mysql -h 127.0.0.1 -P $FE_PORT -u root -sN -e "SHOW BACKENDS" 2>/dev/null | wc -l || echo "0")
 
-    if [ "$BE_COUNT" -gt 0 ]; then
-        print_success "Backend registered successfully!"
+    if [ "$BE_COUNT" -ge 2 ]; then
+        print_success "All backends registered successfully! (count: $BE_COUNT)"
         print_info "Backend details:"
         docker exec $FE_CONTAINER mysql -h 127.0.0.1 -P $FE_PORT -u root -e "SHOW BACKENDS\G"
     else
-        print_error "Backend registration failed"
-        exit 1
+        print_warning "Some backends may not be registered properly (count: $BE_COUNT)"
+        print_info "Current backends:"
+        docker exec $FE_CONTAINER mysql -h 127.0.0.1 -P $FE_PORT -u root -e "SHOW BACKENDS\G"
     fi
 }
 
 ################################################################################
-# Step 4: Check Status
+# Step 5: Check Status
 ################################################################################
 
 check_status() {
@@ -269,7 +377,7 @@ check_status() {
 
     # Container status
     print_info "Container Status:"
-    docker-compose ps starrocks-fe starrocks-be
+    $DOCKER_COMPOSE ps starrocks-fe-1 starrocks-be-1 starrocks-be-2
     echo ""
 
     # Health endpoints
@@ -281,11 +389,16 @@ check_status() {
         print_error "FE Health: FAILED"
     fi
 
-    if curl -sf "http://localhost:$BE_HTTP_PORT/api/health" > /dev/null 2>&1; then
-        print_success "BE Health: OK"
-    else
-        print_error "BE Health: FAILED"
-    fi
+    # Check all BE health endpoints
+    for i in "${!BE_CONTAINERS[@]}"; do
+        be_container="${BE_CONTAINERS[$i]}"
+        be_port="${BE_HTTP_PORTS[$i]}"
+        if curl -sf "http://localhost:$be_port/api/health" > /dev/null 2>&1; then
+            print_success "$be_container Health: OK"
+        else
+            print_error "$be_container Health: FAILED"
+        fi
+    done
     echo ""
 
     # Database status
@@ -308,7 +421,7 @@ check_status() {
 
     # Resource usage
     print_info "Resource Usage:"
-    docker stats --no-stream $FE_CONTAINER $BE_CONTAINER
+    docker stats --no-stream $FE_CONTAINER "${BE_CONTAINERS[@]}"
     echo ""
 
     # Access information
@@ -316,7 +429,12 @@ check_status() {
     echo -e "${GREEN}StarRocks FE Web UI:${NC}  http://localhost:8030"
     echo -e "${GREEN}MySQL (root):${NC}        mysql -h 127.0.0.1 -P 9030 -u root"
     echo -e "${GREEN}MySQL (datawiz_admin):${NC} mysql -h 127.0.0.1 -P 9030 -u datawiz_admin -p"
-    echo -e "${GREEN}StarRocks BE Web UI:${NC}  http://localhost:8040"
+    echo -e "${GREEN}StarRocks BE Web UIs:${NC}"
+    for i in "${!BE_CONTAINERS[@]}"; do
+        be_container="${BE_CONTAINERS[$i]}"
+        be_port="${BE_HTTP_PORTS[$i]}"
+        echo -e "  ${be_container}: http://localhost:${be_port}"
+    done
     echo -e "${GREEN}Database:${NC}            datawiz"
     echo ""
 }
@@ -326,14 +444,15 @@ check_status() {
 ################################################################################
 
 show_usage() {
-    echo "Usage: $0 [prepare|start|register|status|all]"
+    echo "Usage: $0 [prepare|start|init-db|register|status|all]"
     echo ""
     echo "Commands:"
     echo "  prepare   - Prepare system (create directories, check requirements)"
     echo "  start     - Start StarRocks containers"
+    echo "  init-db   - Initialize database and create user with privileges"
     echo "  register  - Register BE with FE"
     echo "  status    - Show cluster status"
-    echo "  all       - Run all steps (prepare, start, register, status)"
+    echo "  all       - Run all steps (prepare, start, init-db, register, status)"
     echo ""
 }
 
@@ -347,6 +466,9 @@ main() {
         start)
             start_services
             ;;
+        init-db)
+            init_database_and_user
+            ;;
         register)
             register_backend
             ;;
@@ -356,6 +478,7 @@ main() {
         all)
             prepare_system
             start_services
+            init_database_and_user
             register_backend
             check_status
 
@@ -363,10 +486,12 @@ main() {
             print_success "StarRocks cluster is ready for use"
             echo ""
             echo -e "${GREEN}Next steps:${NC}"
-            echo "1. Connect to StarRocks: mysql -h 127.0.0.1 -P 9030 -u root"
-            echo "2. Create your database: CREATE DATABASE pidilite;"
-            echo "3. Review STARROCKS_SETUP.md for detailed configuration"
-            echo "4. Start your ETL application: docker-compose up -d pidilite-datawiz"
+            echo "1. Connect to StarRocks (root): mysql -h 127.0.0.1 -P 9030 -u root"
+            echo "2. Connect to StarRocks (datawiz_admin): mysql -h 127.0.0.1 -P 9030 -u datawiz_admin -p"
+            echo "   Password: 0jqhC3X541tP1RmR.5"
+            echo "3. Database: datawiz"
+            echo "4. Review STARROCKS_SETUP.md for detailed configuration"
+            echo "5. Start your ETL application: docker-compose up -d pidilite-datawiz"
             ;;
         *)
             show_usage
