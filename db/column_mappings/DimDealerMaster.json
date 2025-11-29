@@ -1,0 +1,25 @@
+{
+    "table_name": "DimDealerMaster",
+    "description": "Dealer master dimension table",
+    "columns": {
+        "dealercode": {
+            "db_column": "DealerCode",
+            "data_type": "VARCHAR",
+            "description": "Unique dealer identifier",
+            "is_key": true,
+            "nullable": false
+        },
+        "customername": {
+            "db_column": "DealerName",
+            "data_type": "VARCHAR",
+            "description": "Dealer name",
+            "nullable": false
+        },
+        "dealercity": {
+            "db_column": "DealerCity",
+            "data_type": "VARCHAR",
+            "description": "Dealer city",
+            "nullable": true
+        }
+    }
+}

@@ -100,6 +100,7 @@ async def process_blob(
             if not content:
                 return False
 
+        print(f"{Fore.YELLOW}Saving to: {Fore.CYAN}{local_path}")
         async with aiofiles.open(local_path, "wb") as f:
             await f.write(content)
 

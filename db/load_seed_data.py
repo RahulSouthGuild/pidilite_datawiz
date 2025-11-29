@@ -173,7 +173,7 @@ class SeedDataLoader:
             return False
 
     def load_data_batch(
-        self, table_name: str, headers: List[str], rows: List[Dict], batch_size: int = 100
+        self, table_name: str, headers: List[str], rows: List[Dict], batch_size: int = 10000
     ) -> int:
         """
         Load data using batch INSERT statements

@@ -1,0 +1,5 @@
+{
+    "table_name": "RlsMaster",
+    "description": "Row-level security master table",
+    "columns": {}
+}

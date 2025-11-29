@@ -274,22 +274,39 @@ init_database_and_user() {
         print_success "User 'datawiz_admin' created successfully"
     fi
 
-    # Grant privileges
+    # Grant privileges (comprehensive permissions for table creation and data operations)
     print_info "Granting privileges to 'datawiz_admin'..."
-    docker exec $FE_CONTAINER mysql -h 127.0.0.1 -P $FE_PORT -u root -e "GRANT ALL PRIVILEGES ON datawiz.* TO 'datawiz_admin'@'%' WITH GRANT OPTION;" || {
+    
+    # Grant ALL PRIVILEGES on datawiz database for all table operations
+    docker exec $FE_CONTAINER mysql -h 127.0.0.1 -P $FE_PORT -u root -e \
+        "GRANT ALL PRIVILEGES ON datawiz.* TO 'datawiz_admin'@'%';" || {
         print_error "Failed to grant privileges on datawiz"
         exit 1
     }
+    print_success "Table privileges granted successfully"
 
-    # Grant information_schema access
-    docker exec $FE_CONTAINER mysql -h 127.0.0.1 -P $FE_PORT -u root -e "GRANT SELECT ON information_schema.* TO 'datawiz_admin'@'%';" || {
+    # Grant SELECT on information_schema for schema inspection
+    print_info "Granting SELECT on information_schema..."
+    docker exec $FE_CONTAINER mysql -h 127.0.0.1 -P $FE_PORT -u root -e \
+        "GRANT SELECT ON information_schema.* TO 'datawiz_admin'@'%';" || {
         print_warning "Failed to grant information_schema access (may already be granted)"
     }
-
-    # Grant admin role for table creation capability
-    docker exec $FE_CONTAINER mysql -h 127.0.0.1 -P $FE_PORT -u root -e "GRANT ROLE admin TO 'datawiz_admin'@'%';" 2>/dev/null || {
-        print_warning "Admin role grant not available (normal for some StarRocks versions)"
+    
+    # Grant db_admin role for full database administration capabilities
+    print_info "Granting db_admin role to 'datawiz_admin'..."
+    docker exec $FE_CONTAINER mysql -h 127.0.0.1 -P $FE_PORT -u root -e \
+        "GRANT db_admin TO USER 'datawiz_admin'@'%';" 2>/dev/null || {
+        print_warning "db_admin role grant failed (may already be granted)"
     }
+
+    # Set db_admin as default role for 'datawiz_admin'
+    print_info "Activating db_admin role as default for 'datawiz_admin'..."
+    docker exec $FE_CONTAINER mysql -h 127.0.0.1 -P $FE_PORT -u root -e \
+        "SET DEFAULT ROLE db_admin TO 'datawiz_admin'@'%';" || {
+        print_warning "Failed to set default role (may already be set)"
+    }
+    
+    print_success "All privileges and roles granted successfully"
 
     print_success "User privileges granted successfully"
 

@@ -7,7 +7,7 @@ import time
 from typing import List
 import sys
 
-from colorama import init
+from colorama import init, Fore, Style
 
 init(autoreset=True)
 
@@ -17,15 +17,10 @@ sys.path.insert(0, str(PROJECT_ROOT))
 
 from utils.schema_validator import SchemaValidator  # noqa: E402
 
-RED = "\033[91m"
-GREEN = "\033[92m"
-YELLOW = "\033[93m"
-CYAN = "\033[96m"
-RESET = "\033[0m"
-
-# Initialize schema validator with schema files from db/schemas
+# Initialize schema validator with schema files from db/schemas and column mappings
 SCHEMAS_DIR = Path(__file__).parent.parent.parent / "db" / "schemas"
-validator = SchemaValidator.from_schema_files(SCHEMAS_DIR)
+COLUMN_MAPPINGS_DIR = Path(__file__).parent.parent.parent / "db" / "column_mappings"
+validator = SchemaValidator.from_schema_files(SCHEMAS_DIR, COLUMN_MAPPINGS_DIR)
 
 
 def get_table_name_from_file(file_stem: str) -> str:
@@ -42,22 +37,33 @@ def get_table_name_from_file(file_stem: str) -> str:
 
 
 def determine_chunk_size(file_size_mb):
-    """Determine chunk size based on file size"""
-    if file_size_mb > 1000:  # > 1GB
-        return 100000
-    elif file_size_mb > 500:  # 500MB - 1GB
-        return 250000
-    elif file_size_mb > 100:  # 100MB - 500MB
-        return 500000
+    """
+    Determine chunk size based on file size - optimized for 64GB RAM system.
+
+    Strategy:
+    - Large files (>5GB): Use smaller chunks to avoid memory spike
+    - Medium files (1-5GB): Larger chunks for better throughput
+    - Small files (<1GB): Process in single pass for speed
+    """
+    if file_size_mb > 5000:  # > 5GB - be conservative
+        return 500000  # 500K records per chunk
+    elif file_size_mb > 2000:  # 2-5GB
+        return 1000000  # 1M records per chunk
+    elif file_size_mb > 1000:  # 1-2GB
+        return 2000000  # 2M records per chunk
+    elif file_size_mb > 500:  # 500MB-1GB
+        return 3000000  # 3M records per chunk
+    elif file_size_mb > 100:  # 100MB-500MB
+        return 5000000  # 5M records per chunk
     else:
-        return None  # Process entire file
+        return None  # Process entire file at once (< 100MB)
 
 
 async def process_large_file_chunked(parquet_file, output_dir, chunk_size):
     """Process large files in chunks with optimized memory usage - streaming approach"""
     try:
         start_time = time.time()
-        print(f"\n{CYAN}Processing large file in chunks: {parquet_file}{RESET}")
+        print(f"\n{Fore.CYAN}Processing large file in chunks: {parquet_file}{Style.RESET_ALL}")
 
         # Get table name from file
         table_name = get_table_name_from_file(parquet_file.stem)
@@ -66,7 +72,7 @@ async def process_large_file_chunked(parquet_file, output_dir, chunk_size):
         lf = pl.scan_parquet(parquet_file)
         total_rows = lf.select(pl.len()).collect().item()
 
-        print(f"{CYAN}Total rows: {total_rows}, Chunk size: {chunk_size}{RESET}")
+        print(f"{Fore.CYAN}Total rows: {total_rows}, Chunk size: {chunk_size}{Style.RESET_ALL}")
 
         # Prepare output path
         output_path = output_dir / parquet_file.name
@@ -84,7 +90,7 @@ async def process_large_file_chunked(parquet_file, output_dir, chunk_size):
             for i in range(0, total_rows, chunk_size):
                 chunk_num = i // chunk_size + 1
                 print(
-                    f"{CYAN}Processing chunk {chunk_num}/{(total_rows + chunk_size - 1) // chunk_size}{RESET}"
+                    f"{Fore.CYAN}Processing chunk {chunk_num}/{(total_rows + chunk_size - 1) // chunk_size}{Style.RESET_ALL}"
                 )
 
                 # Process chunk
@@ -102,7 +108,9 @@ async def process_large_file_chunked(parquet_file, output_dir, chunk_size):
                 del df_chunk
 
             # Now combine all chunks using lazy evaluation
-            print(f"{CYAN}Combining {len(chunk_files)} chunks using streaming{RESET}")
+            print(
+                f"{Fore.CYAN}Combining {len(chunk_files)} chunks using streaming{Style.RESET_ALL}"
+            )
 
             if chunk_files:
                 # Use lazy scanning for memory efficiency
@@ -114,7 +122,7 @@ async def process_large_file_chunked(parquet_file, output_dir, chunk_size):
 
             elapsed_time = time.time() - start_time
             print(
-                f"{GREEN}Written chunked parquet to {output_path} in {elapsed_time:.2f} seconds{RESET}"
+                f"{Fore.GREEN}Written chunked parquet to {output_path} in {elapsed_time:.2f} seconds{Style.RESET_ALL}"
             )
 
         finally:
@@ -123,7 +131,7 @@ async def process_large_file_chunked(parquet_file, output_dir, chunk_size):
                 shutil.rmtree(temp_dir)
 
     except Exception as e:
-        print(f"{RED}Error processing chunked file {parquet_file}: {e}{RESET}")
+        print(f"{Fore.RED}Error processing chunked file {parquet_file}: {e}{Style.RESET_ALL}")
         raise
 
 
@@ -131,7 +139,9 @@ async def process_large_file_chunked_optimized(parquet_file, output_dir, chunk_s
     """Most memory-efficient approach with progressive combining"""
     try:
         start_time = time.time()
-        print(f"\n{CYAN}Processing large file in chunks (optimized): {parquet_file}{RESET}")
+        print(
+            f"\n{Fore.CYAN}Processing large file in chunks (optimized): {parquet_file}{Style.RESET_ALL}"
+        )
 
         # Get table name from file
         table_name = get_table_name_from_file(parquet_file.stem)
@@ -140,7 +150,7 @@ async def process_large_file_chunked_optimized(parquet_file, output_dir, chunk_s
         lf = pl.scan_parquet(parquet_file)
         total_rows = lf.select(pl.len()).collect().item()
 
-        print(f"{CYAN}Total rows: {total_rows}, Chunk size: {chunk_size}{RESET}")
+        print(f"{Fore.CYAN}Total rows: {total_rows}, Chunk size: {chunk_size}{Style.RESET_ALL}")
 
         # Prepare output path
         output_path = output_dir / parquet_file.name
@@ -159,7 +169,7 @@ async def process_large_file_chunked_optimized(parquet_file, output_dir, chunk_s
             for i in range(0, total_rows, chunk_size):
                 chunk_num = i // chunk_size + 1
                 print(
-                    f"{CYAN}Processing chunk {chunk_num}/{(total_rows + chunk_size - 1) // chunk_size}{RESET}"
+                    f"{Fore.CYAN}Processing chunk {chunk_num}/{(total_rows + chunk_size - 1) // chunk_size}{Style.RESET_ALL}"
                 )
 
                 # Process chunk
@@ -178,12 +188,14 @@ async def process_large_file_chunked_optimized(parquet_file, output_dir, chunk_s
 
                 # Progressive merging to keep chunk count manageable
                 if len(chunk_files) >= merge_threshold:
-                    print(f"{CYAN}Merging {len(chunk_files)} intermediate chunks{RESET}")
+                    print(
+                        f"{Fore.CYAN}Merging {len(chunk_files)} intermediate chunks{Style.RESET_ALL}"
+                    )
                     merged_file = await _merge_chunks_efficiently(chunk_files, temp_dir)
                     chunk_files = [merged_file]
 
             # Final combination
-            print(f"{CYAN}Final combination of {len(chunk_files)} chunks{RESET}")
+            print(f"{Fore.CYAN}Final combination of {len(chunk_files)} chunks{Style.RESET_ALL}")
 
             if len(chunk_files) == 1:
                 # Just move the single file
@@ -196,7 +208,7 @@ async def process_large_file_chunked_optimized(parquet_file, output_dir, chunk_s
 
             elapsed_time = time.time() - start_time
             print(
-                f"{GREEN}Written optimized chunked parquet to {output_path} in {elapsed_time:.2f} seconds{RESET}"
+                f"{Fore.GREEN}Written optimized chunked parquet to {output_path} in {elapsed_time:.2f} seconds{Style.RESET_ALL}"
             )
 
         finally:
@@ -205,7 +217,9 @@ async def process_large_file_chunked_optimized(parquet_file, output_dir, chunk_s
                 shutil.rmtree(temp_dir)
 
     except Exception as e:
-        print(f"{RED}Error processing optimized chunked file {parquet_file}: {e}{RESET}")
+        print(
+            f"{Fore.RED}Error processing optimized chunked file {parquet_file}: {e}{Style.RESET_ALL}"
+        )
         raise
 
 
@@ -233,19 +247,24 @@ async def _merge_chunks_efficiently(chunk_files, temp_dir):
 
 
 def configure_polars_for_low_memory():
-    """Configure Polars for memory-efficient operations"""
-    # Set smaller streaming chunk size to reduce memory usage
-    pl.Config.set_streaming_chunk_size(25000)  # Reduced further
+    """
+    Configure Polars for memory-efficient operations on 64GB RAM system.
 
-    # Limit thread count to reduce CPU pressure and memory contention
+    Optimizations:
+    - Use all available CPU cores (parallelism)
+    - Larger streaming chunks for better throughput
+    - Increased memory budget for better performance
+    """
+    # Set larger streaming chunk size for better performance with 64GB RAM
+    pl.Config.set_streaming_chunk_size(100000)  # 100K rows per chunk (up from 25K)
+
+    # Use all CPU cores for maximum parallelism
     cpu_count = os.cpu_count()
-    pl.Config.set_tbl_cols(50)
+    os.environ["POLARS_MAX_THREADS"] = str(cpu_count)
 
-    # Use fewer threads to reduce memory pressure
-    thread_count = max(1, cpu_count // 4)  # Even more conservative
-    os.environ["POLARS_MAX_THREADS"] = str(thread_count)
+    print(f"{Fore.CYAN}Polars configured for {cpu_count} CPU cores with 64GB RAM{Style.RESET_ALL}")
 
-    # Set memory limit if available
+    # Enable streaming engine for memory efficiency
     try:
         pl.Config.set_streaming_engine(True)
     except Exception:
@@ -256,6 +275,7 @@ async def validate_and_transform_dataframe(df: pl.DataFrame, table_name: str) ->
     """
     Validate dataframe against database schema limits and apply type conversions.
     Automatically upgrades schema when data exceeds limits.
+    Renames columns that conflict with StarRocks reserved keywords.
 
     Args:
         df: Polars DataFrame from parquet file
@@ -267,19 +287,23 @@ async def validate_and_transform_dataframe(df: pl.DataFrame, table_name: str) ->
     Raises:
         ValueError: If validation fails critically
     """
-    print(f"{CYAN}Validating data against table schema: {table_name}{RESET}")
+    print(f"{Fore.CYAN}Validating data against table schema: {table_name}{Style.RESET_ALL}")
 
-    # The validator now returns validation status and potentially modified dataframe
+    # Step 1: Reserved keywords are now handled via quoted column names in the database schema
+    # The schema file uses quotes (e.g., "Div", "Sal") to allow reserved words as column names
+    # No renaming needed here - columns stay as-is in the parquet file
+
+    # Step 2: Validate against schema
     is_valid, error_msg, transformed_df = validator.validate_dataframe_against_schema(
         df, table_name
     )
 
     if not is_valid:
-        error_msg = f"{RED}Validation Error for {table_name}: {error_msg}{RESET}"
+        error_msg = f"{Fore.RED}Validation Error for {table_name}: {error_msg}{Style.RESET_ALL}"
         print(error_msg)
         raise ValueError(error_msg)
 
-    print(f"{GREEN}Validation passed for {table_name}{RESET}")
+    print(f"{Fore.GREEN}Validation passed for {table_name}{Style.RESET_ALL}")
     return transformed_df
 
 
@@ -287,7 +311,7 @@ async def process_parquet_file(parquet_file, output_dir):
     try:
         start_time = time.time()
         print(parquet_file)
-        print(f"\n{CYAN}Processing file: {parquet_file}{RESET}")
+        print(f"\n{Fore.CYAN}Processing file: {parquet_file}{Style.RESET_ALL}")
 
         # Get table name from file
         table_name = get_table_name_from_file(parquet_file.stem)
@@ -298,17 +322,19 @@ async def process_parquet_file(parquet_file, output_dir):
 
         if chunk_size:
             print(
-                f"{CYAN}File size: {file_size_mb:.2f}MB - Using optimized chunked processing{RESET}"
+                f"{Fore.CYAN}File size: {file_size_mb:.2f}MB - Using optimized chunked processing{Style.RESET_ALL}"
             )
             # Use the optimized version instead
             await process_large_file_chunked_optimized(parquet_file, output_dir, chunk_size)
             return
 
         # Regular processing for smaller files
-        print(f"{CYAN}File size: {file_size_mb:.2f}MB - Using regular processing{RESET}")
+        print(
+            f"{Fore.CYAN}File size: {file_size_mb:.2f}MB - Using regular processing{Style.RESET_ALL}"
+        )
 
         df = pl.read_parquet(parquet_file)
-        print(f"{GREEN}Read {parquet_file} successfully{RESET}")
+        print(f"{Fore.GREEN}Read {parquet_file} successfully{Style.RESET_ALL}")
 
         # Apply validation
         df = await validate_and_transform_dataframe(df, table_name)
@@ -320,10 +346,10 @@ async def process_parquet_file(parquet_file, output_dir):
 
         elapsed_time = time.time() - start_time
         print(
-            f"{GREEN}Written cleaned parquet to {output_path} in {elapsed_time:.2f} seconds{RESET}"
+            f"{Fore.GREEN}Written cleaned parquet to {output_path} in {elapsed_time:.2f} seconds{Style.RESET_ALL}"
         )
     except Exception as e:
-        print(f"{RED}Error processing {parquet_file}: {e}{RESET}")
+        print(f"{Fore.RED}Error processing {parquet_file}: {e}{Style.RESET_ALL}")
         raise
 
 
@@ -336,7 +362,8 @@ async def process_batch(files, output_dir, semaphore):
         return await asyncio.gather(*tasks, return_exceptions=True)
 
 
-async def display_file_menu(files: List[Path]) -> int:
+async def display_file_menu(files: List[Path]) -> List[int]:
+    """Display file menu and return list of selected file indices"""
     print("\nAvailable files:")
     for idx, file in enumerate(files, 1):
         print(f"{idx}. {file.name}")
@@ -344,12 +371,37 @@ async def display_file_menu(files: List[Path]) -> int:
 
     while True:
         try:
-            choice = int(input("\nEnter file number to process (0 to exit): "))
-            if 0 <= choice <= len(files):
-                return choice
-            print(f"{RED}Invalid choice. Please enter a number between 0 and {len(files)}{RESET}")
+            choice_input = input(
+                "\nEnter file number(s) to process (comma-separated for multiple, 0 to exit): "
+            )
+
+            # Handle exit
+            if choice_input.strip() == "0":
+                return [0]
+
+            # Parse comma-separated choices
+            choices_str = choice_input.split(",")
+            selected_indices = []
+
+            for choice_str in choices_str:
+                choice = int(choice_str.strip())
+                if not (1 <= choice <= len(files)):
+                    print(
+                        f"{Fore.RED}Invalid choice: {choice}. Please enter numbers between 1 and {len(files)}{Style.RESET_ALL}"
+                    )
+                    break
+                selected_indices.append(choice)
+            else:
+                # All choices were valid
+                if selected_indices:
+                    return selected_indices
+                else:
+                    print(f"{Fore.RED}Please enter at least one valid file number{Style.RESET_ALL}")
+
         except ValueError:
-            print(f"{RED}Please enter a valid number{RESET}")
+            print(
+                f"{Fore.RED}Please enter valid numbers separated by commas (e.g., 1,3,5){Style.RESET_ALL}"
+            )
 
 
 async def main():
@@ -363,18 +415,18 @@ async def main():
         clean_dir = base_dir / "cleaned_parquets"
         if clean_dir.exists():
             shutil.rmtree(clean_dir)
-        print(f"{CYAN}Creating necessary directories{RESET}")
+        print(f"{Fore.CYAN}Creating necessary directories{Style.RESET_ALL}")
         os.makedirs(clean_dir, exist_ok=True)
 
         print(
-            f"{CYAN}Schema validator initialized with {len(validator.tables)} tables from tables.py{RESET}"
+            f"{Fore.CYAN}Schema validator initialized with {len(validator.tables)} tables from tables.py{Style.RESET_ALL}"
         )
 
         files_to_process = list(raw_dir.glob("**/*.parquet"))
         total_files = len(files_to_process)
 
         while True:
-            print(f"\n{CYAN}Menu Options:{RESET}")
+            print(f"\n{Fore.CYAN}Menu Options:{Style.RESET_ALL}")
             print("1. Process all files")
             print("2. Select specific file")
             print("3. Exit")
@@ -383,7 +435,7 @@ async def main():
                 choice = int(input("\nEnter your choice (1-3): "))
 
                 if choice == 1:
-                    print(f"{CYAN}Found {total_files} files to process{RESET}")
+                    print(f"{Fore.CYAN}Found {total_files} files to process{Style.RESET_ALL}")
                     # Process all files
                     chunk_size = 1
                     max_concurrent_tasks = 1
@@ -392,47 +444,65 @@ async def main():
                     for i in range(0, total_files, chunk_size):
                         chunk = files_to_process[i : i + chunk_size]
                         print(
-                            f"{CYAN}Processing chunk {i // chunk_size + 1}/{(total_files + chunk_size - 1) // chunk_size}{RESET}"
+                            f"{Fore.CYAN}Processing chunk {i // chunk_size + 1}/{(total_files + chunk_size - 1) // chunk_size}{Style.RESET_ALL}"
                         )
                         results = await process_batch(chunk, clean_dir, semaphore)
 
                         for result, file in zip(results, chunk):
                             if isinstance(result, Exception):
-                                print(f"{RED}Error processing {file}: {result}{RESET}")
+                                print(
+                                    f"{Fore.RED}Error processing {file}: {result}{Style.RESET_ALL}"
+                                )
 
                 elif choice == 2:
-                    file_choice = await display_file_menu(files_to_process)
-                    if file_choice == 0:
+                    selected_indices = await display_file_menu(files_to_process)
+
+                    # Check if user chose to exit
+                    if selected_indices == [0]:
                         continue
 
-                    selected_file = files_to_process[file_choice - 1]
+                    # Process selected files
+                    print(
+                        f"{Fore.CYAN}Selected {len(selected_indices)} file(s) to process{Style.RESET_ALL}"
+                    )
                     semaphore = asyncio.Semaphore(1)
-                    await process_parquet_file(selected_file, clean_dir)
+
+                    for idx in selected_indices:
+                        selected_file = files_to_process[idx - 1]
+                        print(
+                            f"{Fore.CYAN}Processing file {idx} of {len(selected_indices)}: {selected_file.name}{Style.RESET_ALL}"
+                        )
+                        try:
+                            await process_parquet_file(selected_file, clean_dir)
+                        except Exception as e:
+                            print(
+                                f"{Fore.RED}Error processing {selected_file.name}: {e}{Style.RESET_ALL}"
+                            )
 
                 elif choice == 3:
-                    print(f"{GREEN}Exiting program{RESET}")
+                    print(f"{Fore.GREEN}Exiting program{Style.RESET_ALL}")
                     sys.exit(0)
 
                 else:
-                    print(f"{RED}Invalid choice. Please enter 1, 2, or 3{RESET}")
+                    print(f"{Fore.RED}Invalid choice. Please enter 1, 2, or 3{Style.RESET_ALL}")
 
             except ValueError:
-                print(f"{RED}Please enter a valid number{RESET}")
+                print(f"{Fore.RED}Please enter a valid number{Style.RESET_ALL}")
 
     except Exception as e:
-        print(f"{RED}Error in main: {e}{RESET}")
+        print(f"{Fore.RED}Error in main: {e}{Style.RESET_ALL}")
     finally:
         # Display schema change summary
         try:
             summary = validator.get_schema_change_summary()
             if summary:
-                print(f"\n{YELLOW}{'='*80}{RESET}")
-                print(f"{YELLOW}SCHEMA CHANGES SUMMARY{RESET}")
-                print(f"{YELLOW}{'='*80}{RESET}")
+                print(f"\n{Fore.YELLOW}{'='*80}{Style.RESET_ALL}")
+                print(f"{Fore.YELLOW}SCHEMA CHANGES SUMMARY{Style.RESET_ALL}")
+                print(f"{Fore.YELLOW}{'='*80}{Style.RESET_ALL}")
                 print(summary)
-                print(f"{YELLOW}{'='*80}{RESET}\n")
+                print(f"{Fore.YELLOW}{'='*80}{Style.RESET_ALL}\n")
         except Exception as e:
-            print(f"{RED}Error displaying schema summary: {e}{RESET}")
+            print(f"{Fore.RED}Error displaying schema summary: {e}{Style.RESET_ALL}")
 
         # Display and save ALTER TABLE statements
         try:
@@ -441,14 +511,14 @@ async def main():
                 validator.print_alter_statements()
                 validator.save_alter_statements_to_file()
         except Exception as e:
-            print(f"{RED}Error handling ALTER statements: {e}{RESET}")
+            print(f"{Fore.RED}Error handling ALTER statements: {e}{Style.RESET_ALL}")
 
         end_time = time.time()
-        print(f"{GREEN}Operation time: {end_time - start_time:.2f} seconds{RESET}")
+        print(f"{Fore.GREEN}Operation time: {end_time - start_time:.2f} seconds{Style.RESET_ALL}")
 
 
 if __name__ == "__main__":
     try:
         asyncio.run(main())
     except Exception as e:
-        print(f"{RED}Unhandled error: {e}{RESET}")
+        print(f"{Fore.RED}Unhandled error: {e}{Style.RESET_ALL}")

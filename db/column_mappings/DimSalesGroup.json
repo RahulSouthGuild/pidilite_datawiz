@@ -1,0 +1,5 @@
+{
+    "table_name": "DimSalesGroup",
+    "description": "Sales group dimension table",
+    "columns": {}
+}

@@ -1,0 +1,5 @@
+{
+    "table_name": "FactInvoiceSecondary",
+    "description": "Invoice secondary fact table",
+    "columns": {}
+}
