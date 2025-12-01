@@ -23,7 +23,6 @@ PROPERTIES (
     "replication_num" = "1"
 );
             """,
-    "seed_file": "DimSalesGroup.csv",
     "comments": {
         "table": "Stores the mapping of material codes to their final classifications.",
         "columns": {
@@ -33,3 +32,5 @@ PROPERTIES (
     },
     "indexes": {},
 }
+# Note: Seed data mapping is defined in db/seeds/SEED_MAPPING.py
+# Schema definitions should not reference data files (separation of concerns)

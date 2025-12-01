@@ -12,6 +12,10 @@ import json
 import re
 from datetime import datetime
 
+# Import reserved keywords for smarter column matching
+from utils.reserved_keywords import is_reserved_keyword
+
+
 RED = "\033[91m"
 GREEN = "\033[92m"
 CYAN = "\033[96m"
@@ -79,14 +83,16 @@ class SchemaValidator:
 
     """Validates dataframes against database schemas"""
 
-    def __init__(self, tables: Dict[str, Dict]):
+    def __init__(self, tables: Dict[str, Dict], column_mappings: Dict[str, Dict] = None):
         """
-        Initialize validator with table schemas
+        Initialize validator with table schemas and optional column mappings
 
         Args:
             tables: Dictionary mapping table names to their schema definitions
+            column_mappings: Optional dictionary of column mapping data (parquet_name → db_column_info)
         """
         self.tables = tables
+        self.column_mappings = column_mappings or {}  # Load from db/column_mappings/ if available
         self.schema_changes = []  # Track all schema expansions
         self.logs_dir = Path(__file__).parent.parent / "logs"
         self.logs_dir.mkdir(exist_ok=True)
@@ -95,11 +101,14 @@ class SchemaValidator:
     def _normalize_column_name(col_name: str) -> str:
         """
         Normalize column names for flexible matching.
-        Removes underscores, special characters, and converts to lowercase.
+        Removes quotes, spaces, underscores, hyphens, special characters, and converts to lowercase.
         Handles naming convention mismatches like:
           - invoicedate_df vs InvoiceDateDF
           - cgst% vs CGST_Percent
           - size/dimensions vs Size_Dimensions
+          - "Div" vs div (quoted vs unquoted)
+          - "branch code" vs BranchCode (spaces vs PascalCase)
+          - "customer group 3-status" vs CustomerGroup3Status (dashes vs PascalCase)
 
         Args:
             col_name: Original column name
@@ -107,11 +116,157 @@ class SchemaValidator:
         Returns:
             Normalized column name
         """
-        # Remove underscores, slashes, percent signs, and other special chars
-        normalized = re.sub(r"[_/%]", "", col_name)
+        # Remove quotes (for schema columns like "Div")
+        normalized = col_name.strip().strip('"').strip("'")
+        # Remove spaces, underscores, hyphens, slashes, percent signs, and other special chars
+        normalized = re.sub(r"[\s_/%\-]", "", normalized)
         # Convert to lowercase
         normalized = normalized.lower()
         return normalized
+
+    @staticmethod
+    def _get_schema_lookup_key(col_name: str) -> str:
+        """
+        Generate schema lookup key for a column name.
+
+        Strategy:
+        1. If column is a reserved keyword, append '_raw' suffix
+        2. Convert to lowercase for matching
+
+        This allows matching:
+        - Parquet: 'div' → schema key: 'div_raw'
+        - Parquet: 'customer group 5' → schema key: 'customergroup5'
+        - Parquet: 'branch code' → schema key: 'branchcode'
+
+        Args:
+            col_name: Column name from parquet or schema
+
+        Returns:
+            Normalized lookup key
+        """
+        # First, normalize to lowercase
+        normalized = col_name.strip().strip('"').strip("'").lower()
+        # Remove special characters for matching
+        normalized = re.sub(r"[\s_/%\-]", "", normalized)
+
+        # Check if this matches a reserved keyword (before special char removal)
+        base_name = col_name.strip().strip('"').strip("'")
+        if is_reserved_keyword(base_name):
+            normalized = normalized + "_raw"
+
+        return normalized
+
+    def _find_best_schema_match(
+        self,
+        parquet_col_name: str,
+        parquet_col_dtype: pl.DataType,
+        schema_lookup: Dict,
+        table_name: str = None,
+    ) -> Tuple[str, str]:
+        """
+        Find the best matching schema column for a parquet column.
+
+        When multiple schema columns could match (due to normalization collisions),
+        prefer the one whose data type is most compatible with the parquet data.
+
+        Strategy:
+        1. Check column_mappings first for explicit mapping (if available)
+        2. Find all schema columns that have similar names (allow for prefix variations like CM)
+        3. Score each by type compatibility with parquet data
+        4. Return the highest-scoring match
+
+        Args:
+            parquet_col_name: Name of parquet column
+            parquet_col_dtype: Polars dtype of parquet column
+            schema_lookup: Dictionary of {lookup_key: (original_name, col_type)}
+            table_name: Optional table name to check column_mappings
+
+        Returns:
+            Tuple of (schema_col_original_name, col_type) or (None, None) if no match
+        """
+        # Step 1: Check explicit mapping if table_name provided
+        if table_name and table_name in self.column_mappings:
+            table_mappings = self.column_mappings[table_name]
+            parquet_key = self._get_schema_lookup_key(parquet_col_name)
+
+            if parquet_key in table_mappings:
+                mapping_info = table_mappings[parquet_key]
+                db_column = mapping_info.get("db_column")
+                data_type = mapping_info.get("data_type")
+
+                if db_column and data_type:
+                    print(
+                        f"{GREEN}✓ Using mapping: {parquet_col_name} → {db_column} ({data_type}){RESET}"
+                    )
+                    return (db_column, data_type)
+
+        # Step 2: Try exact lookup in schema
+        exact_key = self._get_schema_lookup_key(parquet_col_name)
+        if exact_key in schema_lookup:
+            schema_col, col_type = schema_lookup[exact_key]
+
+            # If parquet data is string but schema says INT, check data before committing
+            if parquet_col_dtype == pl.Utf8 or str(parquet_col_dtype).upper() == "STRING":
+                if any(t in col_type.upper() for t in ["INT", "SMALLINT", "TINYINT", "BIGINT"]):
+                    # String data with numeric-only schema type - might be wrong match
+                    # Look for VARCHAR alternative
+                    pass  # Continue to look for alternatives below
+                else:
+                    # String data with VARCHAR schema - good match!
+                    return (schema_col, col_type)
+
+        # Step 3: Look for all candidate schema columns with similar base names
+        # Extract the core name (removing prefixes like CM, remove numbers at end sometimes)
+        base_normalized = re.sub(
+            r"[\s_/%\-]", "", parquet_col_name.lower().strip().strip('"').strip("'")
+        )
+
+        candidates = []
+        for key, (orig_name, col_type) in schema_lookup.items():
+            # Try matching with and without common prefixes
+            key_variations = [
+                key,
+                key.replace("cmcustomergroup", "customergroup"),
+                key.replace("cm", ""),
+            ]
+
+            for var in key_variations:
+                if var == base_normalized or (
+                    len(base_normalized) > 0 and var.startswith(base_normalized)
+                ):
+                    # Calculate preference score based on type compatibility
+                    type_score = 0
+
+                    # If parquet data is string/UTF8
+                    if parquet_col_dtype == pl.Utf8 or str(parquet_col_dtype).upper() == "STRING":
+                        # Strongly prefer VARCHAR columns for string data
+                        if "VARCHAR" in col_type.upper():
+                            type_score = 100
+                        # De-prefer INT/SMALLINT for string data
+                        elif any(t in col_type.upper() for t in ["INT", "SMALLINT", "TINYINT"]):
+                            type_score = -50
+                        else:
+                            type_score = 10
+                    else:
+                        # For non-string data, prefer numeric types
+                        if any(
+                            t in col_type.upper()
+                            for t in ["INT", "SMALLINT", "TINYINT", "BIGINT", "FLOAT", "DOUBLE"]
+                        ):
+                            type_score = 100
+                        else:
+                            type_score = 10
+
+                    candidates.append((type_score, key, orig_name, col_type))
+                    break  # Don't add same column multiple times
+
+        if candidates:
+            # Sort by score (highest first)
+            candidates.sort(reverse=True, key=lambda x: x[0])
+            _, _, orig_name, col_type = candidates[0]
+            return (orig_name, col_type)
+
+        return (None, None)
 
     def _log_schema_change(
         self, table_name: str, column_name: str, old_size: int, new_size: int, reason: str
@@ -154,17 +309,21 @@ class SchemaValidator:
         return summary
 
     @classmethod
-    def from_schema_files(cls, schemas_dir: Path) -> "SchemaValidator":
+    def from_schema_files(
+        cls, schemas_dir: Path, column_mappings_dir: Path = None
+    ) -> "SchemaValidator":
         """
-        Load schemas from db/schemas directory
+        Load schemas from db/schemas directory and optionally column mappings from db/column_mappings
 
         Args:
             schemas_dir: Path to schemas directory (e.g., db/schemas)
+            column_mappings_dir: Path to column mappings directory (e.g., db/column_mappings)
 
         Returns:
-            SchemaValidator instance with loaded tables
+            SchemaValidator instance with loaded tables and mappings
         """
         tables = {}
+        column_mappings = {}
         schemas_dir = Path(schemas_dir)
 
         # Get all .py files in schemas directory, sorted by name
@@ -202,11 +361,35 @@ class SchemaValidator:
             except Exception as e:
                 print(f"{RED}✗ Error loading schema from {schema_file.name}: {str(e)}{RESET}")
 
+        # Load column mappings if directory provided
+        if column_mappings_dir:
+            column_mappings_dir = Path(column_mappings_dir)
+            if column_mappings_dir.exists():
+                print(f"\n{CYAN}Loading column mappings from {column_mappings_dir}{RESET}")
+                mapping_files = sorted(column_mappings_dir.glob("*.json"))
+
+                for mapping_file in mapping_files:
+                    try:
+                        with open(mapping_file, "r") as f:
+                            mapping_data = json.load(f)
+                            table_name = mapping_data.get("table_name")
+                            if table_name:
+                                column_mappings[table_name] = mapping_data.get("columns", {})
+                                print(
+                                    f"{GREEN}✓ Loaded mappings for {table_name} ({len(mapping_data.get('columns', {}))} columns){RESET}"
+                                )
+                    except Exception as e:
+                        print(
+                            f"{YELLOW}Warning: Could not load mapping from {mapping_file}: {e}{RESET}"
+                        )
+
         if not tables:
             raise ValueError(f"No schemas found in {schemas_dir}. Check the directory path.")
 
-        print(f"{GREEN}Successfully loaded {len(tables)} table schemas{RESET}\n")
-        return cls(tables)
+        print(
+            f"\n{GREEN}Successfully loaded {len(tables)} table schemas and {len(column_mappings)} column mapping files{RESET}\n"
+        )
+        return cls(tables, column_mappings)
 
     def _clean_numeric_strings(
         self, df: pl.DataFrame, col_name: str, expected_type: str
@@ -493,34 +676,49 @@ class SchemaValidator:
         if not expected_columns:
             return (True, "Could not extract column definitions, skipping validation", df)
 
-        # Normalize column names: remove underscores + special chars + lowercase for flexible matching
-        # This handles naming convention mismatches like invoicedate_df vs InvoiceDateDF
-        # Also handles special chars like cgst% vs CGST_Percent or size/dimensions vs Size_Dimensions
-        expected_columns_normalized = {
-            self._normalize_column_name(k): (k, v) for k, v in expected_columns.items()
-        }
+        # Build lookup map using the new smarter key generation
+        # For each schema column, create a lookup key that handles reserved keywords
+        schema_lookup = {}
+        for schema_col_name, col_type in expected_columns.items():
+            lookup_key = self._get_schema_lookup_key(schema_col_name)
+            schema_lookup[lookup_key] = (schema_col_name, col_type)
+
         df_columns = set(df.columns)
 
-        # Check if all dataframe columns are defined in the schema (normalized comparison)
+        # Check if all dataframe columns are defined in the schema OR in column_mappings
         extra_columns = []
         for col_name in df_columns:
-            if self._normalize_column_name(col_name) not in expected_columns_normalized:
+            # Generate lookup key for parquet column
+            parquet_lookup_key = self._get_schema_lookup_key(col_name)
+
+            # Check both schema and mappings
+            in_schema = parquet_lookup_key in schema_lookup
+            in_mappings = (
+                table_name in self.column_mappings
+                and parquet_lookup_key in self.column_mappings[table_name]
+            )
+
+            if not in_schema and not in_mappings:
                 extra_columns.append(col_name)
 
         if extra_columns:
-            print(f"{RED}Warning: Dataframe has columns not in schema: {set(extra_columns)}{RESET}")
-            # Don't fail validation for extra columns, just warn
+            print(
+                f"{YELLOW}Note: Dataframe has columns not in schema or mappings: {set(extra_columns)}{RESET}"
+            )
+            # Don't fail validation for extra columns, just note them
 
         # Validate columns that exist in both dataframe and schema
         for col_name in df_columns:
-            col_normalized = self._normalize_column_name(col_name)
-            if col_normalized not in expected_columns_normalized:
+            # Use smarter matching that considers data type compatibility and column mappings
+            schema_col_original, col_type = self._find_best_schema_match(
+                col_name, df[col_name].dtype, schema_lookup, table_name
+            )
+
+            if col_type is None:
                 continue
 
-            schema_col, col_type = expected_columns_normalized[col_normalized]
-
             # Attempt data type conversion for data cleaning (string numbers to actual numbers)
-            if df[col_name].dtype == pl.Utf8 and not "VARCHAR" in col_type.upper():
+            if df[col_name].dtype == pl.Utf8 and "VARCHAR" not in col_type.upper():
                 df = self._clean_numeric_strings(df, col_name, col_type)
 
             try:
@@ -695,6 +893,37 @@ class SchemaValidator:
                             )
             except Exception as e:
                 print(f"{RED}Warning: Could not validate column {col_name}: {str(e)}{RESET}")
+
+        # Step 3: Rename columns based on mappings (e.g., div → div_raw for reserved keywords)
+        # Only rename columns that have explicit mappings for reserved keywords or special cases
+        rename_map = {}
+        renamed_targets = set()  # Track which db_columns we've already renamed to
+
+        if table_name in self.column_mappings:
+            table_mappings = self.column_mappings[table_name]
+            for parquet_col in df.columns:
+                lookup_key = self._get_schema_lookup_key(parquet_col)
+                if lookup_key in table_mappings:
+                    mapping_info = table_mappings[lookup_key]
+                    db_column = mapping_info.get("db_column")
+
+                    # Only rename if:
+                    # 1. db_column is different from parquet_col
+                    # 2. We haven't already renamed to this db_column (avoid duplicates)
+                    # 3. db_column is not already in the dataframe
+                    if (
+                        db_column
+                        and db_column != parquet_col
+                        and db_column not in renamed_targets
+                        and db_column not in df.columns
+                    ):
+
+                        rename_map[parquet_col] = db_column
+                        renamed_targets.add(db_column)
+                        print(f"{GREEN}✓ Renaming column: {parquet_col} → {db_column}{RESET}")
+
+        if rename_map:
+            df = df.rename(rename_map)
 
         return True, "Validation passed", df
 

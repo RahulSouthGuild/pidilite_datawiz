@@ -109,6 +109,14 @@
             "description": "Customer group 5 classification",
             "max_string_length": 20,
             "nullable": true
+        },
+        "div": {
+            "db_column": "Div_Raw",
+            "data_type": "VARCHAR",
+            "data_type_params": 105,
+            "description": "Division (reserved keyword, mapped to Div_Raw)",
+            "max_string_length": 10,
+            "nullable": true
         }
     }
 }

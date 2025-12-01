@@ -17,7 +17,8 @@ services:
     environment:
       - JAVA_OPTS=-Xmx4g -Xms4g -XX:+UseG1GC -XX:MaxGCPauseMillis=200
     networks:
-      - starrocks_net
+      starrocks_net:
+        ipv4_address: 172.18.0.10
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8030/api/health || exit 1"]
@@ -45,7 +46,8 @@ services:
     environment:
       - JAVA_OPTS=-Xmx4g -Xms4g -XX:+UseG1GC -XX:MaxGCPauseMillis=200
     networks:
-      - starrocks_net
+      starrocks_net:
+        ipv4_address: 172.18.0.11
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8030/api/health || exit 1"]
@@ -74,7 +76,8 @@ services:
       - BE_MEM_LIMIT=80%
       - STORAGE_ROOT_PATH=/opt/starrocks/be/storage,medium:ssd
     networks:
-      - starrocks_net
+      starrocks_net:
+        ipv4_address: 172.18.0.20
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8040/api/health || exit 1"]
@@ -103,7 +106,8 @@ services:
       - BE_MEM_LIMIT=80%
       - STORAGE_ROOT_PATH=/opt/starrocks/be/storage,medium:ssd
     networks:
-      - starrocks_net
+      starrocks_net:
+        ipv4_address: 172.18.0.21
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8040/api/health || exit 1"]
@@ -139,6 +143,10 @@ services:
 networks:
   starrocks_net:
     driver: bridge
+    ipam:
+      config:
+        - subnet: 172.18.0.0/16
+          gateway: 172.18.0.1
 
 volumes:
   fe1_meta:

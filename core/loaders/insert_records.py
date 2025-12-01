@@ -37,8 +37,12 @@ MAX_ERROR_RATIO = 0.1  # 10% error tolerance
 CHUNK_SIZE = 100000  # Records per chunk
 
 
-def stream_load_csv(table_name, csv_file_path, chunk_id=None, columns=None):
-    """Load CSV data into StarRocks using Stream Load API"""
+def stream_load_csv(table_name, csv_file_path, chunk_id=None):
+    """Load CSV data into StarRocks using Stream Load API
+
+    Note: Column names are already in database format from the cleaning phase.
+    The CSV file columns will be auto-matched by StarRocks.
+    """
     # Prepare the Stream Load URL
     url = f"http://{STARROCKS_CONFIG['host']}:{STARROCKS_CONFIG['http_port']}/api/{STARROCKS_CONFIG['database']}/{table_name}/_stream_load"
 
@@ -52,10 +56,6 @@ def stream_load_csv(table_name, csv_file_path, chunk_id=None, columns=None):
         "timezone": "Asia/Shanghai",
         "Expect": "100-continue",
     }
-
-    # Add columns specification if provided
-    if columns:
-        headers["columns"] = ",".join(columns)
 
     # Authentication
     auth = (STARROCKS_CONFIG["user"], STARROCKS_CONFIG["password"])
@@ -240,27 +240,8 @@ def process_records(file, delete_existing=True):
         total_chunks = (total + CHUNK_SIZE - 1) // CHUNK_SIZE
         print(f"{GREEN}Processing {total:,} records in {total_chunks} chunks{RESET}")
 
-        # Get table columns for Stream Load
-        conn = get_starrocks_connection()
-        table_columns = get_table_columns(conn, table_name)
-        conn.close()
-
-        # Sanitize column names
-        df_columns_lower = {col.lower(): col for col in df.columns}
-        ordered_columns = []
-        actual_columns = []
-
-        for table_col in table_columns:
-            table_col_lower = table_col.lower()
-            if table_col_lower in df_columns_lower:
-                ordered_columns.append(df_columns_lower[table_col_lower])
-                actual_columns.append(table_col)
-
-        if not ordered_columns:
-            print(f"{RED}No matching columns found in dataframe{RESET}")
-            return
-
-        df = df[ordered_columns]
+        # IMPORTANT: Cleaned parquets already have database column names from the cleaning phase
+        # No column mapping needed here - just ingest directly
 
         successful_chunks = 0
         failed_chunks = 0
@@ -281,9 +262,9 @@ def process_records(file, delete_existing=True):
                     ) as tmp_file:
                         chunk.write_csv(tmp_file.name, include_header=False)
 
-                        # Load using Stream Load
+                        # Load using Stream Load (columns already in database format)
                         success, result = stream_load_csv(
-                            table_name, tmp_file.name, chunk_id=chunk_num, columns=actual_columns
+                            table_name, tmp_file.name, chunk_id=chunk_num
                         )
 
                         if success:

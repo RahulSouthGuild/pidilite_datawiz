@@ -139,7 +139,7 @@ TABLE = {
                     WssDivSal VARCHAR(121),
                     Wss VARCHAR(110),
                     Sal VARCHAR(106),
-                    DivisionField VARCHAR(105),
+                    Div_Raw VARCHAR(105),
                     SalGrpDiv VARCHAR(113),
                     Sgc VARCHAR(107),
                     Div2 VARCHAR(106),
