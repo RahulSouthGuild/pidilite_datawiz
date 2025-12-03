@@ -18,6 +18,7 @@ Author: DataWiz Team
 import sys
 import logging
 import csv
+import json
 from pathlib import Path
 from typing import List, Dict, Tuple
 import pymysql
@@ -58,10 +59,12 @@ class SeedDataLoader:
         self.seed_config = SEED_CONFIG
         self.connection = None
         self.seeds_dir = PROJECT_ROOT / "db" / "seeds"
+        self.column_mappings = self._load_column_mappings()
 
         logger.info("SeedDataLoader initialized")
         logger.info(f"Seeds directory: {self.seeds_dir}")
         logger.info(f"Configured seeds: {list(self.seed_config.keys())}")
+        logger.info(f"Column mappings loaded: {list(self.column_mappings.keys())}")
 
     def print_info(self, msg: str, color=Fore.CYAN):
         """Print colored info message"""
@@ -78,6 +81,71 @@ class SeedDataLoader:
     def print_error(self, msg: str):
         """Print colored error message"""
         print(f"{Fore.RED}[ERROR]{Style.RESET_ALL} {msg}")
+
+    def _load_column_mappings(self) -> Dict[str, Dict]:
+        """
+        Load column mappings from db/column_mappings/ JSON files
+
+        Returns:
+            Dictionary mapping table_name → {parquet_key → {db_column, data_type, ...}}
+        """
+        mappings_dir = PROJECT_ROOT / "db" / "column_mappings"
+        column_mappings = {}
+
+        if not mappings_dir.exists():
+            logger.warning(f"Column mappings directory not found: {mappings_dir}")
+            return column_mappings
+
+        try:
+            for mapping_file in sorted(mappings_dir.glob("*.json")):
+                try:
+                    with open(mapping_file, "r", encoding="utf-8") as f:
+                        mapping_data = json.load(f)
+                        table_name = mapping_data.get("table_name")
+                        if table_name and "columns" in mapping_data:
+                            column_mappings[table_name] = mapping_data["columns"]
+                            logger.info(
+                                f"Loaded mapping for {table_name}: {len(mapping_data['columns'])} columns"
+                            )
+                except Exception as e:
+                    logger.error(f"Failed to load mapping from {mapping_file}: {e}")
+
+            logger.info(f"Total table mappings loaded: {len(column_mappings)}")
+            return column_mappings
+
+        except Exception as e:
+            logger.error(f"Error loading column mappings: {e}")
+            return column_mappings
+
+    def _get_db_column_from_csv_header(self, csv_header: str, table_name: str) -> str:
+        """
+        Map CSV column header to database column name using column_mappings
+
+        Args:
+            csv_header: Column name from CSV file (usually lowercase, no underscores)
+            table_name: Target table name to look up in mappings
+
+        Returns:
+            Database column name (snake_case) or original csv_header if not found
+        """
+        # Check if we have mappings for this table
+        if table_name not in self.column_mappings:
+            logger.debug(f"No mappings found for table {table_name}, using CSV header as-is")
+            return csv_header
+
+        table_mappings = self.column_mappings[table_name]
+
+        # Try to find matching mapping
+        # CSV header is typically lowercase without underscores (e.g., "clustercode")
+        # We need to match it to the parquet_key in mappings
+        if csv_header in table_mappings:
+            db_col = table_mappings[csv_header].get("db_column", csv_header)
+            logger.debug(f"Mapped {csv_header} → {db_col}")
+            return db_col
+
+        # If not found, return original header
+        logger.debug(f"No mapping found for {csv_header} in {table_name}, using as-is")
+        return csv_header
 
     def connect(self) -> bool:
         """Connect to StarRocks database"""
@@ -176,7 +244,7 @@ class SeedDataLoader:
         self, table_name: str, headers: List[str], rows: List[Dict], batch_size: int = 10000
     ) -> int:
         """
-        Load data using batch INSERT statements
+        Load data using batch INSERT statements with column mapping
 
         Args:
             table_name: Target table name
@@ -195,13 +263,21 @@ class SeedDataLoader:
             cursor = self.connection.cursor()
             total_inserted = 0
 
+            # Map CSV headers to database column names
+            db_columns = []
+            for csv_header in headers:
+                db_col = self._get_db_column_from_csv_header(csv_header, table_name)
+                db_columns.append(db_col)
+                if db_col != csv_header:
+                    self.print_info(f"  📍 Column mapping: {csv_header} → {db_col}", Fore.YELLOW)
+
             # Process in batches
             for i in range(0, len(rows), batch_size):
                 batch = rows[i : i + batch_size]
                 values_list = []
 
                 for row in batch:
-                    # Create values in column order
+                    # Create values in column order (using CSV headers as keys)
                     values = tuple(row.get(h, None) for h in headers)
                     formatted_values = []
 
@@ -215,8 +291,8 @@ class SeedDataLoader:
 
                     values_list.append(f"({', '.join(formatted_values)})")
 
-                # Build INSERT statement
-                columns = ", ".join(headers)
+                # Build INSERT statement using mapped database column names
+                columns = ", ".join(db_columns)
                 values_str = ", ".join(values_list)
                 insert_sql = f"INSERT INTO {table_name} ({columns}) VALUES {values_str};"
 

@@ -1,0 +1,65 @@
+{
+    "table_name": "rls_master",
+    "description": "rls_master mapping (Parquet \u2192 Database)",
+    "columns": {
+        "cluster": {
+            "data_type": "VARCHAR(200)",
+            "db_column": "cluster",
+            "max_string_length": 200
+        },
+        "division": {
+            "data_type": "VARCHAR(50)",
+            "db_column": "division",
+            "max_string_length": 50
+        },
+        "emailid": {
+            "data_type": "VARCHAR(200)",
+            "db_column": "email_id",
+            "max_string_length": 200
+        },
+        "hierarchypath": {
+            "data_type": "VARCHAR(2000)",
+            "db_column": "hierarchy_path",
+            "max_string_length": 2000
+        },
+        "salesgroup": {
+            "data_type": "SMALLINT",
+            "db_column": "sales_group"
+        },
+        "sh2": {
+            "data_type": "VARCHAR(200)",
+            "db_column": "sh_2",
+            "max_string_length": 200
+        },
+        "sh3": {
+            "data_type": "VARCHAR(200)",
+            "db_column": "sh_3",
+            "max_string_length": 200
+        },
+        "sh4": {
+            "data_type": "VARCHAR(200)",
+            "db_column": "sh_4",
+            "max_string_length": 200
+        },
+        "sh5": {
+            "data_type": "VARCHAR(200)",
+            "db_column": "sh_5",
+            "max_string_length": 200
+        },
+        "sh6": {
+            "data_type": "VARCHAR(200)",
+            "db_column": "sh_6",
+            "max_string_length": 200
+        },
+        "sh7": {
+            "data_type": "VARCHAR(200)",
+            "db_column": "sh_7",
+            "max_string_length": 200
+        },
+        "vertical": {
+            "data_type": "VARCHAR(50)",
+            "db_column": "vertical",
+            "max_string_length": 50
+        }
+    }
+}

@@ -347,6 +347,8 @@ class SchemaValidator:
                     table_def = module.TABLE
                     table_name = table_def.get("name")
                     if table_name:
+                        # Add file path for later schema file updates
+                        table_def["file_path"] = str(schema_file)
                         tables[table_name] = table_def
                         print(
                             f"{GREEN}✓ Loaded schema: {table_name} from {schema_file.name}{RESET}"
@@ -643,6 +645,174 @@ class SchemaValidator:
             )
 
         return df
+
+    def get_schema_columns(self, table_name: str) -> set:
+        """
+        Extract all column names from a table schema in lowercase.
+
+        This is used to validate that mapped database column names exist in the schema.
+
+        Args:
+            table_name: Name of the table (e.g., 'dim_customer_master')
+
+        Returns:
+            Set of lowercase column names from the schema, or empty set if table not found
+        """
+        if table_name not in self.tables:
+            return set()
+
+        table_def = self.tables[table_name]
+        schema_str = table_def.get("schema", "")
+
+        if not schema_str:
+            return set()
+
+        expected_columns = self._extract_columns_from_schema(schema_str)
+
+        # Return column names as lowercase set
+        return set(col_name.lower() for col_name in expected_columns.keys())
+
+    def detect_data_overflows(self, df: pl.DataFrame, table_name: str) -> Dict:
+        """
+        Detect VARCHAR overflow, numeric type overflow, and type mismatches.
+
+        Returns dictionary with:
+        {
+            "varchar_overflows": [{"column": "col_name", "schema_size": 100, "max_actual": 250}],
+            "numeric_overflows": [{"column": "col_name", "schema_type": "SMALLINT", "min": -50000, "max": 50000}],
+            "type_mismatches": [{"column": "col_name", "schema_type": "INT", "data_type": "VARCHAR"}]
+        }
+        """
+        if table_name not in self.tables or len(df.columns) == 0:
+            return {"varchar_overflows": [], "numeric_overflows": [], "type_mismatches": []}
+
+        table_def = self.tables[table_name]
+        schema_str = table_def.get("schema", "")
+        expected_columns_raw = self._extract_columns_from_schema(schema_str)
+
+        # Convert expected_columns to dict with type info
+        expected_columns = {}
+        for col_name, col_info in expected_columns_raw.items():
+            if isinstance(col_info, dict):
+                expected_columns[col_name] = col_info
+            else:
+                # col_info is just the type string
+                expected_columns[col_name] = {"type": col_info}
+
+        issues = {"varchar_overflows": [], "numeric_overflows": [], "type_mismatches": []}
+
+        for col_name in df.columns:
+            col_name_lower = col_name.lower()
+
+            # Find matching schema column (case-insensitive)
+            schema_col = None
+            schema_type = None
+            for schema_col_name, col_info in expected_columns.items():
+                if schema_col_name.lower() == col_name_lower:
+                    schema_col = schema_col_name
+                    if isinstance(col_info, dict):
+                        schema_type = col_info.get("type", "").upper()
+                    else:
+                        schema_type = str(col_info).upper()
+                    break
+
+            if not schema_col or not schema_type:
+                continue  # Column not in schema, skip
+
+            df_dtype = str(df[col_name].dtype)
+
+            # ===== VARCHAR Overflow Check =====
+            if "VARCHAR" in schema_type:
+                # Extract VARCHAR size (e.g., "VARCHAR(100)" → 100)
+                import re
+
+                match = re.search(r"VARCHAR\((\d+)\)", schema_type)
+                if match:
+                    varchar_size = int(match.group(1))
+                    # Get actual max string length in data
+                    try:
+                        str_lengths = df[col_name].cast(pl.Utf8).str.lengths()
+                        max_actual = str_lengths.max()
+                        if max_actual is not None and max_actual > varchar_size:
+                            issues["varchar_overflows"].append(
+                                {
+                                    "column": col_name,
+                                    "schema_size": varchar_size,
+                                    "max_actual": max_actual,
+                                    "recommended_size": int(max_actual * 1.2),  # 20% buffer
+                                }
+                            )
+                    except Exception as e:
+                        print(
+                            f"{YELLOW}Warning: Could not check VARCHAR length for {col_name}: {e}{RESET}"
+                        )
+
+            # ===== Numeric Type Overflow Check =====
+            elif any(
+                t in schema_type for t in ["TINYINT", "SMALLINT", "INT", "BIGINT", "LARGEINT"]
+            ):
+                if df_dtype == "Utf8":
+                    # Type mismatch: schema expects number, data is string
+                    issues["type_mismatches"].append(
+                        {
+                            "column": col_name,
+                            "schema_type": schema_type,
+                            "data_type": "STRING",
+                            "reason": "Schema expects numeric type but data is string",
+                        }
+                    )
+                else:
+                    # Check for overflow
+                    type_ranges = {
+                        "TINYINT": (-128, 127),
+                        "SMALLINT": (-32768, 32767),
+                        "INT": (-2147483648, 2147483647),
+                        "BIGINT": (-9223372036854775808, 9223372036854775807),
+                    }
+
+                    current_type = None
+                    for t in ["TINYINT", "SMALLINT", "INT", "BIGINT", "LARGEINT"]:
+                        if t in schema_type:
+                            current_type = t
+                            break
+
+                    if current_type and current_type in type_ranges:
+                        try:
+                            # Try to get min/max (handle nulls)
+                            col_data = df[col_name].drop_nulls()
+                            if len(col_data) > 0:
+                                min_val = col_data.min()
+                                max_val = col_data.max()
+
+                                rng = type_ranges[current_type]
+                                if (min_val < rng[0]) or (max_val > rng[1]):
+                                    issues["numeric_overflows"].append(
+                                        {
+                                            "column": col_name,
+                                            "schema_type": current_type,
+                                            "min": min_val,
+                                            "max": max_val,
+                                            "range": rng,
+                                        }
+                                    )
+                        except Exception as e:
+                            print(
+                                f"{YELLOW}Warning: Could not check numeric range for {col_name}: {e}{RESET}"
+                            )
+
+            # ===== Type Mismatch Check (other types) =====
+            elif "FLOAT" in schema_type or "DOUBLE" in schema_type:
+                if df_dtype == "Utf8":
+                    issues["type_mismatches"].append(
+                        {
+                            "column": col_name,
+                            "schema_type": schema_type,
+                            "data_type": "STRING",
+                            "reason": "Schema expects float type but data is string",
+                        }
+                    )
+
+        return issues
 
     def validate_dataframe_against_schema(
         self, df: pl.DataFrame, table_name: str
@@ -1087,3 +1257,142 @@ class SchemaValidator:
         except Exception as e:
             print(f"{RED}Error saving ALTER statements: {e}{RESET}")
             return False
+
+    def execute_alter_statements_on_starrocks(
+        self, host: str, port: int, user: str, password: str
+    ) -> Tuple[bool, str]:
+        """
+        Execute ALTER TABLE statements on StarRocks database automatically.
+
+        Args:
+            host: StarRocks host
+            port: StarRocks port
+            user: Database user
+            password: Database password
+
+        Returns:
+            Tuple of (success, message)
+        """
+        import pymysql
+
+        alter_statements = self.get_alter_table_statements()
+
+        if not alter_statements:
+            return True, "No ALTER statements to execute"
+
+        try:
+            connection = pymysql.connect(
+                host=host, port=port, user=user, password=password, database="datawiz"
+            )
+            cursor = connection.cursor()
+
+            executed_count = 0
+            failed_count = 0
+            errors = []
+
+            for stmt in alter_statements:
+                try:
+                    print(f"{CYAN}Executing: {stmt['sql']}{RESET}")
+                    cursor.execute(stmt["sql"])
+                    connection.commit()
+                    executed_count += 1
+                    print(f"{GREEN}✓ Executed: {stmt['table']}.{stmt['column']}{RESET}")
+                except Exception as e:
+                    failed_count += 1
+                    error_msg = f"Failed on {stmt['table']}.{stmt['column']}: {str(e)}"
+                    errors.append(error_msg)
+                    print(f"{RED}✗ {error_msg}{RESET}")
+
+            cursor.close()
+            connection.close()
+
+            result_msg = f"ALTER execution: {executed_count} succeeded, {failed_count} failed"
+            if errors:
+                result_msg += f"\nErrors: {'; '.join(errors)}"
+                return False, result_msg
+            return True, result_msg
+
+        except Exception as e:
+            return False, f"Failed to connect to StarRocks: {str(e)}"
+
+    def update_schema_files_for_overflow(
+        self, table_name: str, overflows: Dict
+    ) -> Tuple[bool, str]:
+        """
+        Automatically update schema Python files when overflow detected.
+
+        Updates VARCHAR sizes and numeric types in db/schemas/*.py files.
+
+        Args:
+            table_name: Name of table
+            overflows: Dictionary with varchar_overflows and numeric_overflows
+
+        Returns:
+            Tuple of (success, message)
+        """
+        if table_name not in self.tables:
+            return False, f"Table {table_name} not found"
+
+        schema_file = self.tables[table_name].get("file_path")
+        if not schema_file:
+            return False, f"Schema file path not found for {table_name}"
+
+        try:
+            # Read current file
+            with open(schema_file, "r") as f:
+                content = f.read()
+
+            updated = False
+
+            # ===== Update VARCHAR sizes =====
+            for overflow in overflows.get("varchar_overflows", []):
+                col_name = overflow["column"]
+                old_size = overflow["schema_size"]
+                new_size = overflow["recommended_size"]
+
+                # Pattern: column_name VARCHAR(old_size)
+                pattern = f"{col_name} VARCHAR\\({old_size}\\)"
+                replacement = f"{col_name} VARCHAR({new_size})"
+
+                if pattern in content or re.search(f"{col_name}.*VARCHAR\\({old_size}\\)", content):
+                    content = re.sub(f"{col_name}\\s+VARCHAR\\({old_size}\\)", replacement, content)
+                    updated = True
+                    print(
+                        f"{YELLOW}Updated {col_name}: VARCHAR({old_size}) → VARCHAR({new_size}){RESET}"
+                    )
+
+            # ===== Update Numeric types =====
+            for overflow in overflows.get("numeric_overflows", []):
+                col_name = overflow["column"]
+                old_type = overflow["schema_type"]
+
+                # Find next type based on ALLOWED_TYPE_UPGRADES
+                allowed_upgrades = self.ALLOWED_TYPE_UPGRADES.get(old_type, [])
+                new_type = None
+
+                for candidate_type in allowed_upgrades:
+                    if candidate_type in ["BIGINT", "LARGEINT", "DOUBLE"]:
+                        new_type = candidate_type
+                        break
+
+                if new_type:
+                    # Update type in schema file
+                    pattern = f"{col_name}\\s+{old_type}"
+                    replacement = f"{col_name} {new_type}"
+
+                    if re.search(pattern, content):
+                        content = re.sub(pattern, replacement, content)
+                        updated = True
+                        print(f"{YELLOW}Updated {col_name}: {old_type} → {new_type}{RESET}")
+
+            # Write updated content back
+            if updated:
+                with open(schema_file, "w") as f:
+                    f.write(content)
+                print(f"{GREEN}✓ Schema file updated: {schema_file}{RESET}")
+                return True, "Schema file updated successfully"
+            else:
+                return True, "No changes needed"
+
+        except Exception as e:
+            return False, f"Error updating schema file: {str(e)}"

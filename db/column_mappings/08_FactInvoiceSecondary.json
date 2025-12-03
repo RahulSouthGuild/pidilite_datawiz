@@ -1,0 +1,297 @@
+{
+    "table_name": "fact_invoice_secondary",
+    "description": "fact_invoice_secondary mapping (Parquet \u2192 Database)",
+    "columns": {
+        "activeflag": {
+            "data_type": "SMALLINT",
+            "db_column": "active_flag"
+        },
+        "cashdiscount": {
+            "data_type": "DOUBLE",
+            "db_column": "cash_discount"
+        },
+        "cgstamount": {
+            "data_type": "DOUBLE",
+            "db_column": "cgst_amount"
+        },
+        "cgstpercentage": {
+            "data_type": "DOUBLE",
+            "db_column": "cgst_percentage"
+        },
+        "createdbysource": {
+            "data_type": "VARCHAR(355)",
+            "db_column": "created_by_source",
+            "max_string_length": 355
+        },
+        "createddate": {
+            "data_type": "INTEGER",
+            "db_column": "created_date"
+        },
+        "creationdatesource": {
+            "data_type": "INTEGER",
+            "db_column": "creation_date_source"
+        },
+        "customercode": {
+            "data_type": "INTEGER",
+            "db_column": "customer_code"
+        },
+        "customercodeoriginal": {
+            "data_type": "INTEGER",
+            "db_column": "customer_code_original"
+        },
+        "damagequantity": {
+            "data_type": "DOUBLE",
+            "db_column": "damage_quantity"
+        },
+        "darpanshiptocode": {
+            "data_type": "VARCHAR(500)",
+            "db_column": "darpan_ship_to_code",
+            "max_string_length": 500
+        },
+        "dealercode": {
+            "data_type": "VARCHAR(500)",
+            "db_column": "dealer_code",
+            "max_string_length": 500
+        },
+        "dealercodedp": {
+            "data_type": "VARCHAR(180)",
+            "db_column": "dealer_code_dp",
+            "max_string_length": 180
+        },
+        "dealersgkey": {
+            "data_type": "VARCHAR(150)",
+            "db_column": "dealer_sg_key",
+            "max_string_length": 150
+        },
+        "deletedflag": {
+            "data_type": "SMALLINT",
+            "db_column": "deleted_flag"
+        },
+        "discountamount": {
+            "data_type": "DOUBLE",
+            "db_column": "discount_amount"
+        },
+        "divisioncode": {
+            "data_type": "SMALLINT",
+            "db_column": "division_code"
+        },
+        "focquantity": {
+            "data_type": "DOUBLE",
+            "db_column": "foc_quantity"
+        },
+        "freightamount": {
+            "data_type": "DOUBLE",
+            "db_column": "freight_amount"
+        },
+        "igstamount": {
+            "data_type": "DOUBLE",
+            "db_column": "igst_amount"
+        },
+        "igstpercentage": {
+            "data_type": "DOUBLE",
+            "db_column": "igst_percentage"
+        },
+        "invoicedate": {
+            "data_type": "INTEGER",
+            "db_column": "invoice_date"
+        },
+        "invoicedatedf": {
+            "data_type": "VARCHAR(150)",
+            "db_column": "invoice_date_df",
+            "max_string_length": 150
+        },
+        "invoiceno": {
+            "data_type": "VARCHAR(150)",
+            "db_column": "invoice_no",
+            "max_string_length": 150
+        },
+        "invoiceprintnumber": {
+            "data_type": "VARCHAR(160)",
+            "db_column": "invoice_print_number",
+            "max_string_length": 160
+        },
+        "itemcode": {
+            "data_type": "VARCHAR(200)",
+            "db_column": "item_code",
+            "max_string_length": 200
+        },
+        "itemdeterminationcode": {
+            "data_type": "VARCHAR(120)",
+            "db_column": "item_determination_code",
+            "max_string_length": 120
+        },
+        "itemweight": {
+            "data_type": "DOUBLE",
+            "db_column": "item_weight"
+        },
+        "loadflag": {
+            "data_type": "VARCHAR(150)",
+            "db_column": "load_flag",
+            "max_string_length": 150
+        },
+        "mfglistno": {
+            "data_type": "VARCHAR(150)",
+            "db_column": "mfg_list_no",
+            "max_string_length": 150
+        },
+        "mistype": {
+            "data_type": "VARCHAR(150)",
+            "db_column": "mis_type",
+            "max_string_length": 150
+        },
+        "mrp": {
+            "data_type": "DOUBLE",
+            "db_column": "mrp"
+        },
+        "netweightinkg": {
+            "data_type": "DOUBLE",
+            "db_column": "net_weight_in_kg"
+        },
+        "orderno": {
+            "data_type": "VARCHAR(200)",
+            "db_column": "order_no",
+            "max_string_length": 200
+        },
+        "printdate": {
+            "data_type": "VARCHAR(150)",
+            "db_column": "print_date",
+            "max_string_length": 150
+        },
+        "printername": {
+            "data_type": "VARCHAR(200)",
+            "db_column": "printer_name",
+            "max_string_length": 200
+        },
+        "rate": {
+            "data_type": "DOUBLE",
+            "db_column": "rate"
+        },
+        "receivabledate": {
+            "data_type": "INTEGER",
+            "db_column": "receivable_date"
+        },
+        "recordtype": {
+            "data_type": "VARCHAR(150)",
+            "db_column": "record_type",
+            "max_string_length": 150
+        },
+        "reportingunit": {
+            "data_type": "DOUBLE",
+            "db_column": "reporting_unit"
+        },
+        "reportingunitineach": {
+            "data_type": "DOUBLE",
+            "db_column": "reporting_unit_in_each"
+        },
+        "reportingvalue": {
+            "data_type": "DOUBLE",
+            "db_column": "reporting_value"
+        },
+        "revisednetvaluemsgvg": {
+            "data_type": "DOUBLE",
+            "db_column": "revised_net_value_msgvg"
+        },
+        "revisednetvaluemvg": {
+            "data_type": "DOUBLE",
+            "db_column": "revised_net_value_mvg"
+        },
+        "routecode": {
+            "data_type": "VARCHAR(150)",
+            "db_column": "route_code",
+            "max_string_length": 150
+        },
+        "routename": {
+            "data_type": "VARCHAR(200)",
+            "db_column": "route_name",
+            "max_string_length": 200
+        },
+        "salesgroupcode": {
+            "data_type": "SMALLINT",
+            "db_column": "sales_group_code"
+        },
+        "schemeamount": {
+            "data_type": "DOUBLE",
+            "db_column": "scheme_amount"
+        },
+        "sgstamount": {
+            "data_type": "DOUBLE",
+            "db_column": "sgst_amount"
+        },
+        "sgstpercentage": {
+            "data_type": "DOUBLE",
+            "db_column": "sgst_percentage"
+        },
+        "stardiscount": {
+            "data_type": "DOUBLE",
+            "db_column": "star_discount"
+        },
+        "stockrequiredquantity": {
+            "data_type": "DOUBLE",
+            "db_column": "stock_required_quantity"
+        },
+        "tcsper": {
+            "data_type": "DOUBLE",
+            "db_column": "tcs_per"
+        },
+        "tcsval": {
+            "data_type": "DOUBLE",
+            "db_column": "tcs_val"
+        },
+        "transferdate": {
+            "data_type": "INTEGER",
+            "db_column": "transfer_date"
+        },
+        "tsicode": {
+            "data_type": "VARCHAR(150)",
+            "db_column": "tsi_code",
+            "max_string_length": 150
+        },
+        "tsiname": {
+            "data_type": "VARCHAR(200)",
+            "db_column": "tsi_name",
+            "max_string_length": 200
+        },
+        "type": {
+            "data_type": "VARCHAR(355)",
+            "db_column": "type",
+            "max_string_length": 355
+        },
+        "updatedbysource": {
+            "data_type": "VARCHAR(20)",
+            "db_column": "updated_by_source",
+            "max_string_length": 20
+        },
+        "updationdatesource": {
+            "data_type": "INTEGER",
+            "db_column": "updation_date_source"
+        },
+        "value": {
+            "data_type": "DOUBLE",
+            "db_column": "value"
+        },
+        "vatamount": {
+            "data_type": "DOUBLE",
+            "db_column": "vat_amount"
+        },
+        "vatpercentage": {
+            "data_type": "DOUBLE",
+            "db_column": "vat_percentage"
+        },
+        "volume": {
+            "data_type": "DOUBLE",
+            "db_column": "volume"
+        },
+        "volumeinkg": {
+            "data_type": "DOUBLE",
+            "db_column": "volume_in_kg"
+        },
+        "volumeinltr": {
+            "data_type": "DOUBLE",
+            "db_column": "volume_in_ltr"
+        },
+        "yearmonth": {
+            "data_type": "INTEGER",
+            "db_column": "year_month"
+        }
+    }
+}

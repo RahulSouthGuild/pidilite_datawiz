@@ -1,0 +1,666 @@
+{
+    "table_name": "dim_dealer_master",
+    "description": "dim_dealer_master mapping (Parquet \u2192 Database)",
+    "columns": {
+        "activeflag": {
+            "data_type": "VARCHAR(104)",
+            "db_column": "active_flag",
+            "max_string_length": 104
+        },
+        "altitudedetails": {
+            "data_type": "VARCHAR(100)",
+            "db_column": "altitude_details",
+            "max_string_length": 100
+        },
+        "citycode": {
+            "data_type": "VARCHAR(109)",
+            "db_column": "city_code",
+            "max_string_length": 109
+        },
+        "count12month": {
+            "data_type": "SMALLINT",
+            "db_column": "count_12_month"
+        },
+        "count3month": {
+            "data_type": "SMALLINT",
+            "db_column": "count_3_month"
+        },
+        "countmtd": {
+            "data_type": "SMALLINT",
+            "db_column": "count_mtd"
+        },
+        "createdbytype": {
+            "data_type": "VARCHAR(112)",
+            "db_column": "created_by_type",
+            "max_string_length": 112
+        },
+        "creationdate": {
+            "data_type": "INTEGER",
+            "db_column": "creation_date"
+        },
+        "customercode": {
+            "data_type": "INTEGER",
+            "db_column": "customer_code"
+        },
+        "dealeraddress1": {
+            "data_type": "VARCHAR(130)",
+            "db_column": "dealer_address_1",
+            "max_string_length": 130
+        },
+        "dealeraddress2": {
+            "data_type": "VARCHAR(130)",
+            "db_column": "dealer_address_2",
+            "max_string_length": 130
+        },
+        "dealeraddress3": {
+            "data_type": "VARCHAR(130)",
+            "db_column": "dealer_address_3",
+            "max_string_length": 130
+        },
+        "dealeranniversaryday": {
+            "data_type": "INTEGER",
+            "db_column": "dealer_anniversary_day"
+        },
+        "dealerchairmanclubtag": {
+            "data_type": "VARCHAR(124)",
+            "db_column": "dealer_chairman_club_tag",
+            "max_string_length": 124
+        },
+        "dealercity": {
+            "data_type": "VARCHAR(140)",
+            "db_column": "dealer_city",
+            "max_string_length": 140
+        },
+        "dealerclass": {
+            "data_type": "VARCHAR(108)",
+            "db_column": "dealer_class",
+            "max_string_length": 108
+        },
+        "dealercode": {
+            "data_type": "VARCHAR(80)",
+            "db_column": "dealer_code",
+            "max_string_length": 80
+        },
+        "dealercreatedby": {
+            "data_type": "VARCHAR(150)",
+            "db_column": "dealer_created_by",
+            "max_string_length": 150
+        },
+        "dealercreatedcode": {
+            "data_type": "VARCHAR(150)",
+            "db_column": "dealer_created_code",
+            "max_string_length": 150
+        },
+        "dealercreateddate": {
+            "data_type": "INTEGER",
+            "db_column": "dealer_created_date"
+        },
+        "dealerdateofbirth": {
+            "data_type": "INTEGER",
+            "db_column": "dealer_date_of_birth"
+        },
+        "dealerdistrict": {
+            "data_type": "VARCHAR(140)",
+            "db_column": "dealer_district",
+            "max_string_length": 140
+        },
+        "dealerdrcpflag": {
+            "data_type": "VARCHAR(101)",
+            "db_column": "dealer_drcp_flag",
+            "max_string_length": 101
+        },
+        "dealeremail": {
+            "data_type": "VARCHAR(150)",
+            "db_column": "dealer_email",
+            "max_string_length": 150
+        },
+        "dealerexecutivetag": {
+            "data_type": "VARCHAR(149)",
+            "db_column": "dealer_executive_tag",
+            "max_string_length": 149
+        },
+        "dealerflxnflx": {
+            "data_type": "VARCHAR(109)",
+            "db_column": "dealer_flxn_flx",
+            "max_string_length": 109
+        },
+        "dealerfootrootsequence": {
+            "data_type": "SMALLINT",
+            "db_column": "dealer_foot_root_sequence"
+        },
+        "dealergrn": {
+            "data_type": "VARCHAR(119)",
+            "db_column": "dealer_grn",
+            "max_string_length": 119
+        },
+        "dealergroupcode": {
+            "data_type": "VARCHAR(108)",
+            "db_column": "dealer_group_code",
+            "max_string_length": 108
+        },
+        "dealergstnumber": {
+            "data_type": "VARCHAR(120)",
+            "db_column": "dealer_gst_number",
+            "max_string_length": 120
+        },
+        "dealergsttype": {
+            "data_type": "VARCHAR(104)",
+            "db_column": "dealer_gst_type",
+            "max_string_length": 104
+        },
+        "dealerlanguage": {
+            "data_type": "VARCHAR(119)",
+            "db_column": "dealer_language",
+            "max_string_length": 119
+        },
+        "dealerlatitude": {
+            "data_type": "VARCHAR(115)",
+            "db_column": "dealer_latitude",
+            "max_string_length": 115
+        },
+        "dealerlcddealertag": {
+            "data_type": "VARCHAR(114)",
+            "db_column": "dealer_lcd_dealer_tag",
+            "max_string_length": 114
+        },
+        "dealerlongitude": {
+            "data_type": "VARCHAR(115)",
+            "db_column": "dealer_longitude",
+            "max_string_length": 115
+        },
+        "dealermaritalstatus": {
+            "data_type": "VARCHAR(104)",
+            "db_column": "dealer_marital_status",
+            "max_string_length": 104
+        },
+        "dealermarketcode": {
+            "data_type": "VARCHAR(107)",
+            "db_column": "dealer_market_code",
+            "max_string_length": 107
+        },
+        "dealermarketname": {
+            "data_type": "VARCHAR(122)",
+            "db_column": "dealer_market_name",
+            "max_string_length": 122
+        },
+        "dealermobile": {
+            "data_type": "VARCHAR(112)",
+            "db_column": "dealer_mobile",
+            "max_string_length": 112
+        },
+        "dealermodifiedby": {
+            "data_type": "VARCHAR(150)",
+            "db_column": "dealer_modified_by",
+            "max_string_length": 150
+        },
+        "dealermodifieddate": {
+            "data_type": "INTEGER",
+            "db_column": "dealer_modified_date"
+        },
+        "dealername": {
+            "data_type": "VARCHAR(140)",
+            "db_column": "dealer_name",
+            "max_string_length": 140
+        },
+        "dealerowner": {
+            "data_type": "VARCHAR(143)",
+            "db_column": "dealer_owner",
+            "max_string_length": 143
+        },
+        "dealerownerreligion": {
+            "data_type": "VARCHAR(112)",
+            "db_column": "dealer_owner_religion",
+            "max_string_length": 112
+        },
+        "dealerpan": {
+            "data_type": "VARCHAR(110)",
+            "db_column": "dealer_pan",
+            "max_string_length": 110
+        },
+        "dealerphone": {
+            "data_type": "VARCHAR(355)",
+            "db_column": "dealer_phone",
+            "max_string_length": 355
+        },
+        "dealerpin": {
+            "data_type": "VARCHAR(104)",
+            "db_column": "dealer_pin",
+            "max_string_length": 104
+        },
+        "dealerpwgclass": {
+            "data_type": "VARCHAR(110)",
+            "db_column": "dealer_pwg_class",
+            "max_string_length": 110
+        },
+        "dealerroutecode": {
+            "data_type": "VARCHAR(109)",
+            "db_column": "dealer_route_code",
+            "max_string_length": 109
+        },
+        "dealerroutename": {
+            "data_type": "VARCHAR(125)",
+            "db_column": "dealer_route_name",
+            "max_string_length": 125
+        },
+        "dealerroutevisitfrequently": {
+            "data_type": "VARCHAR(100)",
+            "db_column": "dealer_route_visit_frequently",
+            "max_string_length": 100
+        },
+        "dealersecondarymobile": {
+            "data_type": "VARCHAR(100)",
+            "db_column": "dealer_secondary_mobile",
+            "max_string_length": 100
+        },
+        "dealersgkey": {
+            "data_type": "VARCHAR(121)",
+            "db_column": "dealer_sg_key",
+            "max_string_length": 121
+        },
+        "dealerspousebirthday": {
+            "data_type": "INTEGER",
+            "db_column": "dealer_spouse_birthday"
+        },
+        "dealerstate": {
+            "data_type": "VARCHAR(136)",
+            "db_column": "dealer_state",
+            "max_string_length": 136
+        },
+        "dealerstatus": {
+            "data_type": "VARCHAR(101)",
+            "db_column": "dealer_status",
+            "max_string_length": 101
+        },
+        "dealertin": {
+            "data_type": "VARCHAR(355)",
+            "db_column": "dealer_tin",
+            "max_string_length": 355
+        },
+        "dealertsitype": {
+            "data_type": "VARCHAR(113)",
+            "db_column": "dealer_tsi_type",
+            "max_string_length": 113
+        },
+        "dealertype1": {
+            "data_type": "VARCHAR(130)",
+            "db_column": "dealer_type_1",
+            "max_string_length": 130
+        },
+        "dealertype10": {
+            "data_type": "VARCHAR(120)",
+            "db_column": "dealer_type_10",
+            "max_string_length": 120
+        },
+        "dealertype11": {
+            "data_type": "VARCHAR(121)",
+            "db_column": "dealer_type_11",
+            "max_string_length": 121
+        },
+        "dealertype12": {
+            "data_type": "VARCHAR(116)",
+            "db_column": "dealer_type_12",
+            "max_string_length": 116
+        },
+        "dealertype13": {
+            "data_type": "VARCHAR(100)",
+            "db_column": "dealer_type_13",
+            "max_string_length": 100
+        },
+        "dealertype14": {
+            "data_type": "VARCHAR(100)",
+            "db_column": "dealer_type_14",
+            "max_string_length": 100
+        },
+        "dealertype15": {
+            "data_type": "VARCHAR(116)",
+            "db_column": "dealer_type_15",
+            "max_string_length": 116
+        },
+        "dealertype16": {
+            "data_type": "VARCHAR(100)",
+            "db_column": "dealer_type_16",
+            "max_string_length": 100
+        },
+        "dealertype17": {
+            "data_type": "VARCHAR(100)",
+            "db_column": "dealer_type_17",
+            "max_string_length": 100
+        },
+        "dealertype18": {
+            "data_type": "VARCHAR(100)",
+            "db_column": "dealer_type_18",
+            "max_string_length": 100
+        },
+        "dealertype19": {
+            "data_type": "VARCHAR(100)",
+            "db_column": "dealer_type_19",
+            "max_string_length": 100
+        },
+        "dealertype2": {
+            "data_type": "VARCHAR(120)",
+            "db_column": "dealer_type_2",
+            "max_string_length": 120
+        },
+        "dealertype20": {
+            "data_type": "VARCHAR(100)",
+            "db_column": "dealer_type_20",
+            "max_string_length": 100
+        },
+        "dealertype3": {
+            "data_type": "VARCHAR(129)",
+            "db_column": "dealer_type_3",
+            "max_string_length": 129
+        },
+        "dealertype4": {
+            "data_type": "VARCHAR(120)",
+            "db_column": "dealer_type_4",
+            "max_string_length": 120
+        },
+        "dealertype5": {
+            "data_type": "VARCHAR(120)",
+            "db_column": "dealer_type_5",
+            "max_string_length": 120
+        },
+        "dealertype6": {
+            "data_type": "VARCHAR(120)",
+            "db_column": "dealer_type_6",
+            "max_string_length": 120
+        },
+        "dealertype7": {
+            "data_type": "VARCHAR(120)",
+            "db_column": "dealer_type_7",
+            "max_string_length": 120
+        },
+        "dealertype8": {
+            "data_type": "VARCHAR(102)",
+            "db_column": "dealer_type_8",
+            "max_string_length": 102
+        },
+        "dealertype9": {
+            "data_type": "VARCHAR(125)",
+            "db_column": "dealer_type_9",
+            "max_string_length": 125
+        },
+        "dealervalidationdate": {
+            "data_type": "INTEGER",
+            "db_column": "dealer_validation_date"
+        },
+        "dealervalidationstatus": {
+            "data_type": "VARCHAR(101)",
+            "db_column": "dealer_validation_status",
+            "max_string_length": 101
+        },
+        "dealervisitday": {
+            "data_type": "VARCHAR(109)",
+            "db_column": "dealer_visit_day",
+            "max_string_length": 109
+        },
+        "dealervisitfrequency": {
+            "data_type": "SMALLINT",
+            "db_column": "dealer_visit_frequency"
+        },
+        "dealerwinomkarcode": {
+            "data_type": "VARCHAR(120)",
+            "db_column": "dealer_winomkar_code",
+            "max_string_length": 120
+        },
+        "dealerwinomkarflag": {
+            "data_type": "VARCHAR(101)",
+            "db_column": "dealer_winomkar_flag",
+            "max_string_length": 101
+        },
+        "deriveddealergroupcode": {
+            "data_type": "VARCHAR(118)",
+            "db_column": "derived_dealer_group_code",
+            "max_string_length": 118
+        },
+        "descriptionofhierarchylevel1": {
+            "data_type": "VARCHAR(130)",
+            "db_column": "description_of_hierarchy_level_1",
+            "max_string_length": 130
+        },
+        "descriptionofhierarchylevel2": {
+            "data_type": "VARCHAR(133)",
+            "db_column": "description_of_hierarchy_level_2",
+            "max_string_length": 133
+        },
+        "descriptionofhierarchylevel3": {
+            "data_type": "VARCHAR(133)",
+            "db_column": "description_of_hierarchy_level_3",
+            "max_string_length": 133
+        },
+        "descriptionofhierarchylevel4": {
+            "data_type": "VARCHAR(134)",
+            "db_column": "description_of_hierarchy_level_4",
+            "max_string_length": 134
+        },
+        "descriptionofhierarchylevel6": {
+            "data_type": "VARCHAR(130)",
+            "db_column": "description_of_hierarchy_level_6",
+            "max_string_length": 130
+        },
+        "detailsofdropdown": {
+            "data_type": "VARCHAR(100)",
+            "db_column": "details_of_dropdown",
+            "max_string_length": 100
+        },
+        "disconnectedflag": {
+            "data_type": "VARCHAR(101)",
+            "db_column": "disconnected_flag",
+            "max_string_length": 101
+        },
+        "disgruntledflag": {
+            "data_type": "VARCHAR(101)",
+            "db_column": "disgruntled_flag",
+            "max_string_length": 101
+        },
+        "dissatisfiedflag": {
+            "data_type": "VARCHAR(101)",
+            "db_column": "dissatisfied_flag",
+            "max_string_length": 101
+        },
+        "districtcode": {
+            "data_type": "VARCHAR(100)",
+            "db_column": "district_code",
+            "max_string_length": 100
+        },
+        "divisioncode": {
+            "data_type": "SMALLINT",
+            "db_column": "division_code"
+        },
+        "dropdownselectionforpoi": {
+            "data_type": "VARCHAR(107)",
+            "db_column": "drop_down_selection_for_poi",
+            "max_string_length": 107
+        },
+        "externaldealercode": {
+            "data_type": "VARCHAR(100)",
+            "db_column": "external_dealer_code",
+            "max_string_length": 100
+        },
+        "gpsaccuracy": {
+            "data_type": "VARCHAR(100)",
+            "db_column": "gps_accuracy",
+            "max_string_length": 100
+        },
+        "hierarchylevel1wssterritory": {
+            "data_type": "VARCHAR(107)",
+            "db_column": "hierarchy_level_1_wss_territory",
+            "max_string_length": 107
+        },
+        "hierarchylevel3asmterritory": {
+            "data_type": "VARCHAR(107)",
+            "db_column": "hierarchy_level_3_asm_territory",
+            "max_string_length": 107
+        },
+        "hierarchylevel4bmterritory": {
+            "data_type": "VARCHAR(107)",
+            "db_column": "hierarchy_level_4_bm_territory",
+            "max_string_length": 107
+        },
+        "hierarchylevel6territory": {
+            "data_type": "VARCHAR(107)",
+            "db_column": "hierarchy_level_6_territory",
+            "max_string_length": 107
+        },
+        "isrtag": {
+            "data_type": "VARCHAR(102)",
+            "db_column": "is_rtag",
+            "max_string_length": 102
+        },
+        "locationprovider": {
+            "data_type": "VARCHAR(106)",
+            "db_column": "location_provider",
+            "max_string_length": 106
+        },
+        "misc1": {
+            "data_type": "VARCHAR(129)",
+            "db_column": "misc_1",
+            "max_string_length": 129
+        },
+        "mobilevalidated": {
+            "data_type": "VARCHAR(101)",
+            "db_column": "mobile_validated",
+            "max_string_length": 101
+        },
+        "peripherymarket": {
+            "data_type": "VARCHAR(102)",
+            "db_column": "periphery_market",
+            "max_string_length": 102
+        },
+        "primarycustomername": {
+            "data_type": "VARCHAR(135)",
+            "db_column": "primary_customer_name",
+            "max_string_length": 135
+        },
+        "primarycustomerparentcode": {
+            "data_type": "VARCHAR(108)",
+            "db_column": "primary_customer_parent_code",
+            "max_string_length": 108
+        },
+        "primarynumber": {
+            "data_type": "VARCHAR(100)",
+            "db_column": "primary_number",
+            "max_string_length": 100
+        },
+        "primarytsicode": {
+            "data_type": "VARCHAR(108)",
+            "db_column": "primary_tsi_code",
+            "max_string_length": 108
+        },
+        "retailertype": {
+            "data_type": "VARCHAR(121)",
+            "db_column": "retailer_type",
+            "max_string_length": 121
+        },
+        "rsmhierarchycode": {
+            "data_type": "VARCHAR(107)",
+            "db_column": "rsm_hierarchy_code",
+            "max_string_length": 107
+        },
+        "rsmhierarchydesc": {
+            "data_type": "VARCHAR(125)",
+            "db_column": "rsm_hierarchy_desc",
+            "max_string_length": 125
+        },
+        "sales12month": {
+            "data_type": "DOUBLE",
+            "db_column": "sales_12_month"
+        },
+        "sales3month": {
+            "data_type": "DOUBLE",
+            "db_column": "sales_3_month"
+        },
+        "sales6month": {
+            "data_type": "DOUBLE",
+            "db_column": "sales_6_month"
+        },
+        "salesgroupcode": {
+            "data_type": "SMALLINT",
+            "db_column": "sales_group_code"
+        },
+        "salesmtd": {
+            "data_type": "DOUBLE",
+            "db_column": "sales_mtd"
+        },
+        "secmobilevalidated": {
+            "data_type": "VARCHAR(101)",
+            "db_column": "sec_mobile_validated",
+            "max_string_length": 101
+        },
+        "secondarycustomercode": {
+            "data_type": "VARCHAR(104)",
+            "db_column": "secondary_customer_code",
+            "max_string_length": 104
+        },
+        "secondarycustomername": {
+            "data_type": "VARCHAR(100)",
+            "db_column": "secondary_customer_name",
+            "max_string_length": 100
+        },
+        "secondarycustomerparentcode": {
+            "data_type": "VARCHAR(108)",
+            "db_column": "secondary_customer_parent_code",
+            "max_string_length": 108
+        },
+        "shopboard": {
+            "data_type": "VARCHAR(104)",
+            "db_column": "shop_board",
+            "max_string_length": 104
+        },
+        "shopboardtype": {
+            "data_type": "VARCHAR(105)",
+            "db_column": "shop_board_type",
+            "max_string_length": 105
+        },
+        "statecode": {
+            "data_type": "VARCHAR(10)",
+            "db_column": "state_code",
+            "max_string_length": 10
+        },
+        "subdistrictcode": {
+            "data_type": "VARCHAR(100)",
+            "db_column": "sub_district_code",
+            "max_string_length": 100
+        },
+        "subdistrictname": {
+            "data_type": "VARCHAR(136)",
+            "db_column": "sub_district_name",
+            "max_string_length": 136
+        },
+        "substockistcode": {
+            "data_type": "VARCHAR(106)",
+            "db_column": "sub_stockist_code",
+            "max_string_length": 106
+        },
+        "tsicode": {
+            "data_type": "VARCHAR(135)",
+            "db_column": "tsi_code",
+            "max_string_length": 135
+        },
+        "tsiname": {
+            "data_type": "VARCHAR(139)",
+            "db_column": "tsi_name",
+            "max_string_length": 139
+        },
+        "tsiterritorycode": {
+            "data_type": "VARCHAR(20)",
+            "db_column": "tsi_territory_code",
+            "max_string_length": 20
+        },
+        "tsitype": {
+            "data_type": "VARCHAR(116)",
+            "db_column": "tsi_type",
+            "max_string_length": 116
+        },
+        "validfrom": {
+            "data_type": "INTEGER",
+            "db_column": "valid_from"
+        },
+        "validto": {
+            "data_type": "VARCHAR(100)",
+            "db_column": "valid_to",
+            "max_string_length": 100
+        }
+    }
+}

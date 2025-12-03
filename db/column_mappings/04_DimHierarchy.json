@@ -1,0 +1,369 @@
+{
+    "table_name": "dim_hierarchy",
+    "description": "dim_hierarchy mapping (Parquet \u2192 Database)",
+    "columns": {
+        "clustercode": {
+            "data_type": "VARCHAR(20)",
+            "db_column": "cluster_code",
+            "max_string_length": 20
+        },
+        "clustercostcenter": {
+            "data_type": "BIGINT",
+            "db_column": "cluster_cost_center"
+        },
+        "clusterdescription": {
+            "data_type": "VARCHAR(125)",
+            "db_column": "cluster_description",
+            "max_string_length": 125
+        },
+        "clusterempcode": {
+            "data_type": "VARCHAR(100)",
+            "db_column": "cluster_emp_code",
+            "max_string_length": 100
+        },
+        "clusterempname": {
+            "data_type": "VARCHAR(132)",
+            "db_column": "cluster_emp_name",
+            "max_string_length": 132
+        },
+        "clusterempposition": {
+            "data_type": "VARCHAR(136)",
+            "db_column": "cluster_emp_position",
+            "max_string_length": 136
+        },
+        "clustermobile": {
+            "data_type": "BIGINT",
+            "db_column": "cluster_mobile"
+        },
+        "clusterposition": {
+            "data_type": "INTEGER",
+            "db_column": "cluster_position"
+        },
+        "createddate": {
+            "data_type": "INTEGER",
+            "db_column": "created_date"
+        },
+        "divisioncode": {
+            "data_type": "SMALLINT",
+            "db_column": "division_code"
+        },
+        "hs": {
+            "data_type": "VARCHAR(100)",
+            "db_column": "hs",
+            "max_string_length": 100
+        },
+        "mdi01a": {
+            "data_type": "VARCHAR(100)",
+            "db_column": "mdi_01_a",
+            "max_string_length": 100
+        },
+        "mdi01b": {
+            "data_type": "VARCHAR(100)",
+            "db_column": "mdi_01_b",
+            "max_string_length": 100
+        },
+        "mdi01c": {
+            "data_type": "VARCHAR(100)",
+            "db_column": "mdi_01_c",
+            "max_string_length": 100
+        },
+        "mdi01d": {
+            "data_type": "VARCHAR(107)",
+            "db_column": "mdi_01_d",
+            "max_string_length": 107
+        },
+        "primarykey": {
+            "data_type": "VARCHAR(131)",
+            "db_column": "primary_key",
+            "max_string_length": 131
+        },
+        "primarykeyvalue": {
+            "data_type": "VARCHAR(157)",
+            "db_column": "primary_key_value",
+            "max_string_length": 157
+        },
+        "productcode": {
+            "data_type": "VARCHAR(112)",
+            "db_column": "product_code",
+            "max_string_length": 112
+        },
+        "productname": {
+            "data_type": "VARCHAR(143)",
+            "db_column": "product_name",
+            "max_string_length": 143
+        },
+        "salesgroup": {
+            "data_type": "SMALLINT",
+            "db_column": "sales_group"
+        },
+        "sh2code": {
+            "data_type": "VARCHAR(107)",
+            "db_column": "sh_2_code",
+            "max_string_length": 107
+        },
+        "sh2costcentercode": {
+            "data_type": "VARCHAR(107)",
+            "db_column": "sh_2_cost_center_code",
+            "max_string_length": 107
+        },
+        "sh2email": {
+            "data_type": "VARCHAR(136)",
+            "db_column": "sh_2_email",
+            "max_string_length": 136
+        },
+        "sh2empcode": {
+            "data_type": "VARCHAR(100)",
+            "db_column": "sh_2_emp_code",
+            "max_string_length": 100
+        },
+        "sh2empname": {
+            "data_type": "VARCHAR(136)",
+            "db_column": "sh_2_emp_name",
+            "max_string_length": 136
+        },
+        "sh2empposition": {
+            "data_type": "INTEGER",
+            "db_column": "sh_2_emp_position"
+        },
+        "sh2hq": {
+            "data_type": "VARCHAR(124)",
+            "db_column": "sh_2_hq",
+            "max_string_length": 124
+        },
+        "sh2mobile": {
+            "data_type": "VARCHAR(110)",
+            "db_column": "sh_2_mobile",
+            "max_string_length": 110
+        },
+        "sh2name": {
+            "data_type": "VARCHAR(140)",
+            "db_column": "sh_2_name",
+            "max_string_length": 140
+        },
+        "sh3code": {
+            "data_type": "VARCHAR(107)",
+            "db_column": "sh_3_code",
+            "max_string_length": 107
+        },
+        "sh3costcentercode": {
+            "data_type": "BIGINT",
+            "db_column": "sh_3_cost_center_code"
+        },
+        "sh3email": {
+            "data_type": "VARCHAR(136)",
+            "db_column": "sh_3_email",
+            "max_string_length": 136
+        },
+        "sh3empcode": {
+            "data_type": "VARCHAR(100)",
+            "db_column": "sh_3_emp_code",
+            "max_string_length": 100
+        },
+        "sh3empname": {
+            "data_type": "VARCHAR(135)",
+            "db_column": "sh_3_emp_name",
+            "max_string_length": 135
+        },
+        "sh3empposition": {
+            "data_type": "INTEGER",
+            "db_column": "sh_3_emp_position"
+        },
+        "sh3hq": {
+            "data_type": "VARCHAR(128)",
+            "db_column": "sh_3_hq",
+            "max_string_length": 128
+        },
+        "sh3mobile": {
+            "data_type": "BIGINT",
+            "db_column": "sh_3_mobile"
+        },
+        "sh3name": {
+            "data_type": "VARCHAR(134)",
+            "db_column": "sh_3_name",
+            "max_string_length": 134
+        },
+        "sh4code": {
+            "data_type": "VARCHAR(107)",
+            "db_column": "sh_4_code",
+            "max_string_length": 107
+        },
+        "sh4costcentercode": {
+            "data_type": "BIGINT",
+            "db_column": "sh_4_cost_center_code"
+        },
+        "sh4email": {
+            "data_type": "VARCHAR(133)",
+            "db_column": "sh_4_email",
+            "max_string_length": 133
+        },
+        "sh4empcode": {
+            "data_type": "VARCHAR(100)",
+            "db_column": "sh_4_emp_code",
+            "max_string_length": 100
+        },
+        "sh4empname": {
+            "data_type": "VARCHAR(130)",
+            "db_column": "sh_4_emp_name",
+            "max_string_length": 130
+        },
+        "sh4empposition": {
+            "data_type": "INTEGER",
+            "db_column": "sh_4_emp_position"
+        },
+        "sh4hq": {
+            "data_type": "VARCHAR(128)",
+            "db_column": "sh_4_hq",
+            "max_string_length": 128
+        },
+        "sh4mobile": {
+            "data_type": "BIGINT",
+            "db_column": "sh_4_mobile"
+        },
+        "sh4name": {
+            "data_type": "VARCHAR(134)",
+            "db_column": "sh_4_name",
+            "max_string_length": 134
+        },
+        "sh5code": {
+            "data_type": "VARCHAR(107)",
+            "db_column": "sh_5_code",
+            "max_string_length": 107
+        },
+        "sh5costcentercode": {
+            "data_type": "BIGINT",
+            "db_column": "sh_5_cost_center_code"
+        },
+        "sh5email": {
+            "data_type": "VARCHAR(132)",
+            "db_column": "sh_5_email",
+            "max_string_length": 132
+        },
+        "sh5empcode": {
+            "data_type": "VARCHAR(100)",
+            "db_column": "sh_5_emp_code",
+            "max_string_length": 100
+        },
+        "sh5empname": {
+            "data_type": "VARCHAR(130)",
+            "db_column": "sh_5_emp_name",
+            "max_string_length": 130
+        },
+        "sh5empposition": {
+            "data_type": "INTEGER",
+            "db_column": "sh_5_emp_position"
+        },
+        "sh5hq": {
+            "data_type": "VARCHAR(128)",
+            "db_column": "sh_5_hq",
+            "max_string_length": 128
+        },
+        "sh5mobile": {
+            "data_type": "BIGINT",
+            "db_column": "sh_5_mobile"
+        },
+        "sh5name": {
+            "data_type": "VARCHAR(130)",
+            "db_column": "sh_5_name",
+            "max_string_length": 130
+        },
+        "sh6code": {
+            "data_type": "VARCHAR(107)",
+            "db_column": "sh_6_code",
+            "max_string_length": 107
+        },
+        "sh6costcentercode": {
+            "data_type": "BIGINT",
+            "db_column": "sh_6_cost_center_code"
+        },
+        "sh6email": {
+            "data_type": "VARCHAR(132)",
+            "db_column": "sh_6_email",
+            "max_string_length": 132
+        },
+        "sh6empcode": {
+            "data_type": "VARCHAR(100)",
+            "db_column": "sh_6_emp_code",
+            "max_string_length": 100
+        },
+        "sh6empname": {
+            "data_type": "VARCHAR(124)",
+            "db_column": "sh_6_emp_name",
+            "max_string_length": 124
+        },
+        "sh6empposition": {
+            "data_type": "INTEGER",
+            "db_column": "sh_6_emp_position"
+        },
+        "sh6hq": {
+            "data_type": "VARCHAR(121)",
+            "db_column": "sh_6_hq",
+            "max_string_length": 121
+        },
+        "sh6mobile": {
+            "data_type": "BIGINT",
+            "db_column": "sh_6_mobile"
+        },
+        "sh6name": {
+            "data_type": "VARCHAR(127)",
+            "db_column": "sh_6_name",
+            "max_string_length": 127
+        },
+        "sh7code": {
+            "data_type": "VARCHAR(107)",
+            "db_column": "sh_7_code",
+            "max_string_length": 107
+        },
+        "sh7costcentercode": {
+            "data_type": "BIGINT",
+            "db_column": "sh_7_cost_center_code"
+        },
+        "sh7email": {
+            "data_type": "VARCHAR(130)",
+            "db_column": "sh_7_email",
+            "max_string_length": 130
+        },
+        "sh7empcode": {
+            "data_type": "VARCHAR(100)",
+            "db_column": "sh_7_emp_code",
+            "max_string_length": 100
+        },
+        "sh7empname": {
+            "data_type": "VARCHAR(118)",
+            "db_column": "sh_7_emp_name",
+            "max_string_length": 118
+        },
+        "sh7empposition": {
+            "data_type": "INTEGER",
+            "db_column": "sh_7_emp_position"
+        },
+        "sh7hq": {
+            "data_type": "VARCHAR(121)",
+            "db_column": "sh_7_hq",
+            "max_string_length": 121
+        },
+        "sh7mobile": {
+            "data_type": "BIGINT",
+            "db_column": "sh_7_mobile"
+        },
+        "sh7name": {
+            "data_type": "VARCHAR(122)",
+            "db_column": "sh_7_name",
+            "max_string_length": 122
+        },
+        "txntype": {
+            "data_type": "VARCHAR(145)",
+            "db_column": "txn_type",
+            "max_string_length": 145
+        },
+        "wssterritorycode": {
+            "data_type": "VARCHAR(107)",
+            "db_column": "wss_territory_code",
+            "max_string_length": 107
+        },
+        "wssterritoryname": {
+            "data_type": "VARCHAR(130)",
+            "db_column": "wss_territory_name",
+            "max_string_length": 130
+        }
+    }
+}

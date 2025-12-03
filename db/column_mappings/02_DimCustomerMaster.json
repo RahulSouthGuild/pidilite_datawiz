@@ -1,0 +1,666 @@
+{
+    "table_name": "dim_customer_master",
+    "description": "dim_customer_master mapping (Parquet \u2192 Database)",
+    "columns": {
+        "adharno": {
+            "data_type": "VARCHAR(112)",
+            "db_column": "aadhar_no",
+            "max_string_length": 112
+        },
+        "accountingclerk": {
+            "data_type": "SMALLINT",
+            "db_column": "accounting_clerk"
+        },
+        "address1": {
+            "data_type": "VARCHAR(140)",
+            "db_column": "address_1",
+            "max_string_length": 140
+        },
+        "address2": {
+            "data_type": "VARCHAR(140)",
+            "db_column": "address_2",
+            "max_string_length": 140
+        },
+        "address3": {
+            "data_type": "VARCHAR(140)",
+            "db_column": "address_3",
+            "max_string_length": 140
+        },
+        "alternateemailid": {
+            "data_type": "VARCHAR(144)",
+            "db_column": "alternate_email_id",
+            "max_string_length": 144
+        },
+        "approvedate": {
+            "data_type": "INTEGER",
+            "db_column": "approve_date"
+        },
+        "bankaccountholdername": {
+            "data_type": "VARCHAR(145)",
+            "db_column": "bank_account_holder_name",
+            "max_string_length": 145
+        },
+        "bankaccountnumber": {
+            "data_type": "VARCHAR(118)",
+            "db_column": "bank_account_number",
+            "max_string_length": 118
+        },
+        "bankkeys": {
+            "data_type": "VARCHAR(112)",
+            "db_column": "bank_keys",
+            "max_string_length": 112
+        },
+        "bankname": {
+            "data_type": "VARCHAR(150)",
+            "db_column": "bank_name",
+            "max_string_length": 150
+        },
+        "bankswiftcode": {
+            "data_type": "VARCHAR(113)",
+            "db_column": "bank_swift_code",
+            "max_string_length": 113
+        },
+        "billingblock": {
+            "data_type": "VARCHAR(102)",
+            "db_column": "billing_block",
+            "max_string_length": 102
+        },
+        "billingblockdescription": {
+            "data_type": "VARCHAR(118)",
+            "db_column": "billing_block_description",
+            "max_string_length": 118
+        },
+        "birthdate": {
+            "data_type": "INTEGER",
+            "db_column": "birth_date"
+        },
+        "blockordercode": {
+            "data_type": "VARCHAR(102)",
+            "db_column": "block_order_code",
+            "max_string_length": 102
+        },
+        "branch": {
+            "data_type": "VARCHAR(122)",
+            "db_column": "branch",
+            "max_string_length": 122
+        },
+        "branch code": {
+            "data_type": "VARCHAR(107)",
+            "db_column": "branch_code",
+            "max_string_length": 107
+        },
+        "branchname": {
+            "data_type": "VARCHAR(140)",
+            "db_column": "branch_name",
+            "max_string_length": 140
+        },
+        "checkrule": {
+            "data_type": "VARCHAR(103)",
+            "db_column": "check_rule",
+            "max_string_length": 103
+        },
+        "classification": {
+            "data_type": "VARCHAR(101)",
+            "db_column": "classification",
+            "max_string_length": 101
+        },
+        "cluster": {
+            "data_type": "VARCHAR(200)",
+            "db_column": "cluster",
+            "max_string_length": 200
+        },
+        "cluster code": {
+            "data_type": "VARCHAR(20)",
+            "db_column": "cluster_code",
+            "max_string_length": 20
+        },
+        "customer group": {
+            "data_type": "VARCHAR(120)",
+            "db_column": "cm_customer_group",
+            "max_string_length": 120
+        },
+        "customer group 1": {
+            "data_type": "VARCHAR(120)",
+            "db_column": "cm_customer_group_1",
+            "max_string_length": 120
+        },
+        "customer group 2": {
+            "data_type": "VARCHAR(119)",
+            "db_column": "cm_customer_group_2",
+            "max_string_length": 119
+        },
+        "customer group 3": {
+            "data_type": "VARCHAR(119)",
+            "db_column": "cm_customer_group_3",
+            "max_string_length": 119
+        },
+        "customer group 4": {
+            "data_type": "VARCHAR(107)",
+            "db_column": "cm_customer_group_4",
+            "max_string_length": 107
+        },
+        "customer group 5": {
+            "data_type": "VARCHAR(120)",
+            "db_column": "cm_customer_group_5",
+            "max_string_length": 120
+        },
+        "region code": {
+            "data_type": "VARCHAR(107)",
+            "db_column": "cm_region_code",
+            "max_string_length": 107
+        },
+        "contactperson": {
+            "data_type": "VARCHAR(140)",
+            "db_column": "contact_person",
+            "max_string_length": 140
+        },
+        "country": {
+            "data_type": "VARCHAR(80)",
+            "db_column": "country",
+            "max_string_length": 80
+        },
+        "countrycode": {
+            "data_type": "VARCHAR(102)",
+            "db_column": "country_code",
+            "max_string_length": 102
+        },
+        "creditcontrolarea": {
+            "data_type": "SMALLINT",
+            "db_column": "credit_control_area"
+        },
+        "creditexposure": {
+            "data_type": "VARCHAR(111)",
+            "db_column": "credit_exposure",
+            "max_string_length": 111
+        },
+        "creditlimit": {
+            "data_type": "DOUBLE",
+            "db_column": "credit_limit"
+        },
+        "cstnumber": {
+            "data_type": "VARCHAR(137)",
+            "db_column": "cst_number",
+            "max_string_length": 137
+        },
+        "customerblock": {
+            "data_type": "VARCHAR(102)",
+            "db_column": "customer_block",
+            "max_string_length": 102
+        },
+        "customerblockdescription": {
+            "data_type": "VARCHAR(118)",
+            "db_column": "customer_block_description",
+            "max_string_length": 118
+        },
+        "customerclassification": {
+            "data_type": "SMALLINT",
+            "db_column": "customer_classification"
+        },
+        "customercode": {
+            "data_type": "INTEGER",
+            "db_column": "customer_code"
+        },
+        "customercreationdate": {
+            "data_type": "INTEGER",
+            "db_column": "customer_creation_date"
+        },
+        "customergroup": {
+            "data_type": "VARCHAR(5)",
+            "db_column": "customer_group",
+            "max_string_length": 5
+        },
+        "customergroup1": {
+            "data_type": "SMALLINT",
+            "db_column": "customer_group_1"
+        },
+        "customergroup2": {
+            "data_type": "SMALLINT",
+            "db_column": "customer_group_2"
+        },
+        "customergroup3": {
+            "data_type": "SMALLINT",
+            "db_column": "customer_group_3"
+        },
+        "customer group 3-status": {
+            "data_type": "VARCHAR(107)",
+            "db_column": "customer_group_3_status",
+            "max_string_length": 107
+        },
+        "customergroup4": {
+            "data_type": "SMALLINT",
+            "db_column": "customer_group_4"
+        },
+        "customergroup5": {
+            "data_type": "SMALLINT",
+            "db_column": "customer_group_5"
+        },
+        "customername": {
+            "data_type": "VARCHAR(150)",
+            "db_column": "customer_name",
+            "max_string_length": 150
+        },
+        "customerregcurrency": {
+            "data_type": "VARCHAR(103)",
+            "db_column": "customer_reg_currency",
+            "max_string_length": 103
+        },
+        "customerremarks": {
+            "data_type": "VARCHAR(200)",
+            "db_column": "customer_remarks",
+            "max_string_length": 200
+        },
+        "customerstatus": {
+            "data_type": "VARCHAR(112)",
+            "db_column": "customer_status",
+            "max_string_length": 112
+        },
+        "darpan": {
+            "data_type": "VARCHAR(123)",
+            "db_column": "darpan",
+            "max_string_length": 123
+        },
+        "dealercode": {
+            "data_type": "VARCHAR(80)",
+            "db_column": "dealer_code",
+            "max_string_length": 80
+        },
+        "defaultdeliveryplant": {
+            "data_type": "SMALLINT",
+            "db_column": "default_delivery_plant"
+        },
+        "deliveryblock": {
+            "data_type": "VARCHAR(102)",
+            "db_column": "delivery_block",
+            "max_string_length": 102
+        },
+        "deliveryblockdescription": {
+            "data_type": "VARCHAR(119)",
+            "db_column": "delivery_block_description",
+            "max_string_length": 119
+        },
+        "deliverypriority": {
+            "data_type": "SMALLINT",
+            "db_column": "delivery_priority"
+        },
+        "discontinuebyuser": {
+            "data_type": "VARCHAR(110)",
+            "db_column": "discontinue_by_user",
+            "max_string_length": 110
+        },
+        "discontinuedate": {
+            "data_type": "INTEGER",
+            "db_column": "discontinue_date"
+        },
+        "discontinueflag": {
+            "data_type": "VARCHAR(105)",
+            "db_column": "discontinue_flag",
+            "max_string_length": 105
+        },
+        "discontinuereasoncode": {
+            "data_type": "VARCHAR(102)",
+            "db_column": "discontinue_reason_code",
+            "max_string_length": 102
+        },
+        "discontinuereasondescription": {
+            "data_type": "VARCHAR(144)",
+            "db_column": "discontinue_reason_description",
+            "max_string_length": 144
+        },
+        "distributionchannelcode": {
+            "data_type": "SMALLINT",
+            "db_column": "distribution_channel_code"
+        },
+        "district": {
+            "data_type": "VARCHAR(135)",
+            "db_column": "district",
+            "max_string_length": 135
+        },
+        "div2": {
+            "data_type": "VARCHAR(106)",
+            "db_column": "div_2",
+            "max_string_length": 106
+        },
+        "div": {
+            "data_type": "VARCHAR(105)",
+            "db_column": "div_col_rf",
+            "max_string_length": 105
+        },
+        "divsal": {
+            "data_type": "VARCHAR(111)",
+            "db_column": "div_sal",
+            "max_string_length": 111
+        },
+        "divisioncode": {
+            "data_type": "SMALLINT",
+            "db_column": "division_code"
+        },
+        "documentthroughbank": {
+            "data_type": "VARCHAR(200)",
+            "db_column": "document_through_bank",
+            "max_string_length": 200
+        },
+        "emailid": {
+            "data_type": "VARCHAR(144)",
+            "db_column": "email_id",
+            "max_string_length": 144
+        },
+        "faxno": {
+            "data_type": "VARCHAR(117)",
+            "db_column": "fax_no",
+            "max_string_length": 117
+        },
+        "grandparentcustomercode": {
+            "data_type": "INTEGER",
+            "db_column": "grand_parent_customer_code"
+        },
+        "gstno": {
+            "data_type": "VARCHAR(116)",
+            "db_column": "gst_no",
+            "max_string_length": 116
+        },
+        "hierarchylevel1": {
+            "data_type": "VARCHAR(107)",
+            "db_column": "hierarchy_level_1",
+            "max_string_length": 107
+        },
+        "latitude": {
+            "data_type": "DOUBLE",
+            "db_column": "latitude"
+        },
+        "longitude": {
+            "data_type": "DOUBLE",
+            "db_column": "longitude"
+        },
+        "lstnumber": {
+            "data_type": "VARCHAR(137)",
+            "db_column": "lst_number",
+            "max_string_length": 137
+        },
+        "minimuminvvaluegroup": {
+            "data_type": "VARCHAR(102)",
+            "db_column": "minimum_inv_value_group",
+            "max_string_length": 102
+        },
+        "mobileno": {
+            "data_type": "VARCHAR(113)",
+            "db_column": "mobile_no",
+            "max_string_length": 113
+        },
+        "mpv": {
+            "data_type": "DOUBLE",
+            "db_column": "mpv"
+        },
+        "name2": {
+            "data_type": "VARCHAR(135)",
+            "db_column": "name_2",
+            "max_string_length": 135
+        },
+        "nsm": {
+            "data_type": "VARCHAR(122)",
+            "db_column": "nsm",
+            "max_string_length": 122
+        },
+        "nsm code": {
+            "data_type": "VARCHAR(107)",
+            "db_column": "nsm_code",
+            "max_string_length": 107
+        },
+        "ownersdetails": {
+            "data_type": "VARCHAR(134)",
+            "db_column": "owners_details",
+            "max_string_length": 134
+        },
+        "pannumber": {
+            "data_type": "VARCHAR(125)",
+            "db_column": "pan_number",
+            "max_string_length": 125
+        },
+        "parentcustomercode": {
+            "data_type": "INTEGER",
+            "db_column": "parent_customer_code"
+        },
+        "paymentmethod": {
+            "data_type": "VARCHAR(101)",
+            "db_column": "payment_method",
+            "max_string_length": 101
+        },
+        "paymentmethodname": {
+            "data_type": "VARCHAR(116)",
+            "db_column": "payment_method_name",
+            "max_string_length": 116
+        },
+        "paymenttermday": {
+            "data_type": "SMALLINT",
+            "db_column": "payment_term_day"
+        },
+        "pincode": {
+            "data_type": "VARCHAR(15)",
+            "db_column": "pincode",
+            "max_string_length": 15
+        },
+        "pl": {
+            "data_type": "VARCHAR(104)",
+            "db_column": "pl",
+            "max_string_length": 104
+        },
+        "pldiv": {
+            "data_type": "VARCHAR(109)",
+            "db_column": "pl_div",
+            "max_string_length": 109
+        },
+        "pldivsal": {
+            "data_type": "VARCHAR(115)",
+            "db_column": "pl_div_sal",
+            "max_string_length": 115
+        },
+        "plsal": {
+            "data_type": "VARCHAR(110)",
+            "db_column": "pl_sal",
+            "max_string_length": 110
+        },
+        "pop strata": {
+            "data_type": "VARCHAR(107)",
+            "db_column": "pop_strata",
+            "max_string_length": 107
+        },
+        "population": {
+            "data_type": "INTEGER",
+            "db_column": "population"
+        },
+        "recconaccount": {
+            "data_type": "INTEGER",
+            "db_column": "rec_con_account"
+        },
+        "region": {
+            "data_type": "VARCHAR(100)",
+            "db_column": "region",
+            "max_string_length": 100
+        },
+        "regioncode": {
+            "data_type": "VARCHAR(102)",
+            "db_column": "region_code",
+            "max_string_length": 102
+        },
+        "relevantforinterface": {
+            "data_type": "SMALLINT",
+            "db_column": "relevant_for_interface"
+        },
+        "relevantforwinomkar": {
+            "data_type": "SMALLINT",
+            "db_column": "relevant_for_winomkar"
+        },
+        "riskcategory": {
+            "data_type": "VARCHAR(103)",
+            "db_column": "risk_category",
+            "max_string_length": 103
+        },
+        "sal": {
+            "data_type": "VARCHAR(106)",
+            "db_column": "sal",
+            "max_string_length": 106
+        },
+        "salgrpdiv": {
+            "data_type": "VARCHAR(113)",
+            "db_column": "sal_grp_div",
+            "max_string_length": 113
+        },
+        "salegroupname": {
+            "data_type": "VARCHAR(116)",
+            "db_column": "sale_group_name",
+            "max_string_length": 116
+        },
+        "salesgroupcode": {
+            "data_type": "SMALLINT",
+            "db_column": "sales_group_code"
+        },
+        "salesoffice": {
+            "data_type": "SMALLINT",
+            "db_column": "sales_office"
+        },
+        "salesofficedescription": {
+            "data_type": "VARCHAR(150)",
+            "db_column": "sales_office_description",
+            "max_string_length": 150
+        },
+        "salesorganizationcode": {
+            "data_type": "SMALLINT",
+            "db_column": "sales_organization_code"
+        },
+        "salesforceaccountid": {
+            "data_type": "VARCHAR(118)",
+            "db_column": "salesforce_account_id",
+            "max_string_length": 118
+        },
+        "searchterm2": {
+            "data_type": "VARCHAR(119)",
+            "db_column": "search_term_2",
+            "max_string_length": 119
+        },
+        "sgc": {
+            "data_type": "VARCHAR(107)",
+            "db_column": "sgc",
+            "max_string_length": 107
+        },
+        "state": {
+            "data_type": "VARCHAR(120)",
+            "db_column": "state",
+            "max_string_length": 120
+        },
+        "sub district": {
+            "data_type": "VARCHAR(120)",
+            "db_column": "sub_district",
+            "max_string_length": 120
+        },
+        "telephoneno": {
+            "data_type": "VARCHAR(117)",
+            "db_column": "telephone_no",
+            "max_string_length": 117
+        },
+        "termofpayment": {
+            "data_type": "VARCHAR(104)",
+            "db_column": "term_of_payment",
+            "max_string_length": 104
+        },
+        "town": {
+            "data_type": "VARCHAR(130)",
+            "db_column": "town",
+            "max_string_length": 130
+        },
+        "towncode": {
+            "data_type": "VARCHAR(109)",
+            "db_column": "town_code",
+            "max_string_length": 109
+        },
+        "transportationzone": {
+            "data_type": "VARCHAR(110)",
+            "db_column": "transportation_zone",
+            "max_string_length": 110
+        },
+        "tsigrouping": {
+            "data_type": "VARCHAR(109)",
+            "db_column": "tsi_grouping",
+            "max_string_length": 109
+        },
+        "tsimobileno": {
+            "data_type": "BIGINT",
+            "db_column": "tsi_mobile_no"
+        },
+        "tsi territory code": {
+            "data_type": "VARCHAR(20)",
+            "db_column": "tsi_territory_code",
+            "max_string_length": 20
+        },
+        "tsi territory name": {
+            "data_type": "VARCHAR(132)",
+            "db_column": "tsi_territory_name",
+            "max_string_length": 132
+        },
+        "unique key": {
+            "data_type": "VARCHAR(112)",
+            "db_column": "unique_key",
+            "max_string_length": 112
+        },
+        "validfrom": {
+            "data_type": "INTEGER",
+            "db_column": "valid_from"
+        },
+        "winomkarimplementationdate": {
+            "data_type": "INTEGER",
+            "db_column": "winomkar_implementation_date"
+        },
+        "winomkarwssflag": {
+            "data_type": "VARCHAR(101)",
+            "db_column": "winomkar_wss_flag",
+            "max_string_length": 101
+        },
+        "wss": {
+            "data_type": "VARCHAR(110)",
+            "db_column": "wss",
+            "max_string_length": 110
+        },
+        "wssdiv": {
+            "data_type": "VARCHAR(115)",
+            "db_column": "wss_div",
+            "max_string_length": 115
+        },
+        "wssdivsal": {
+            "data_type": "VARCHAR(121)",
+            "db_column": "wss_div_sal",
+            "max_string_length": 121
+        },
+        "wss_flag1": {
+            "data_type": "SMALLINT",
+            "db_column": "wss_flag_1"
+        },
+        "wss_flag2": {
+            "data_type": "VARCHAR(115)",
+            "db_column": "wss_flag_2",
+            "max_string_length": 115
+        },
+        "wsssal": {
+            "data_type": "VARCHAR(116)",
+            "db_column": "wss_sal",
+            "max_string_length": 116
+        },
+        "wss territory code": {
+            "data_type": "VARCHAR(107)",
+            "db_column": "wss_territory_code",
+            "max_string_length": 107
+        },
+        "wss territory name": {
+            "data_type": "VARCHAR(130)",
+            "db_column": "wss_territory_name",
+            "max_string_length": 130
+        },
+        "zone": {
+            "data_type": "VARCHAR(124)",
+            "db_column": "zone",
+            "max_string_length": 124
+        },
+        "zone code": {
+            "data_type": "VARCHAR(10)",
+            "db_column": "zone_code",
+            "max_string_length": 10
+        }
+    }
+}

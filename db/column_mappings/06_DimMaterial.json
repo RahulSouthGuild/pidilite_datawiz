@@ -1,0 +1,423 @@
+{
+    "table_name": "dim_material",
+    "description": "dim_material mapping (Parquet \u2192 Database)",
+    "columns": {
+        "activeflag": {
+            "data_type": "VARCHAR(104)",
+            "db_column": "active_flag",
+            "max_string_length": 104
+        },
+        "averageratecase": {
+            "data_type": "DOUBLE",
+            "db_column": "average_rate_case"
+        },
+        "averagerateeach": {
+            "data_type": "DOUBLE",
+            "db_column": "average_rate_each"
+        },
+        "averageratekg": {
+            "data_type": "DOUBLE",
+            "db_column": "average_rate_kg"
+        },
+        "averageratelitre": {
+            "data_type": "DOUBLE",
+            "db_column": "average_rate_litre"
+        },
+        "baseuom": {
+            "data_type": "VARCHAR(103)",
+            "db_column": "base_uom",
+            "max_string_length": 103
+        },
+        "baseuomdescription": {
+            "data_type": "VARCHAR(100)",
+            "db_column": "base_uom_description",
+            "max_string_length": 100
+        },
+        "category1": {
+            "data_type": "VARCHAR(104)",
+            "db_column": "category_1",
+            "max_string_length": 104
+        },
+        "category2": {
+            "data_type": "VARCHAR(104)",
+            "db_column": "category_2",
+            "max_string_length": 104
+        },
+        "cati/ii": {
+            "data_type": "VARCHAR(102)",
+            "db_column": "cati_ii",
+            "max_string_length": 102
+        },
+        "cgst%": {
+            "data_type": "DOUBLE",
+            "db_column": "cgst_percent"
+        },
+        "crossplantmaterialstatus": {
+            "data_type": "VARCHAR(102)",
+            "db_column": "cross_plant_material_status",
+            "max_string_length": 102
+        },
+        "crosssellingindicator": {
+            "data_type": "VARCHAR(101)",
+            "db_column": "cross_selling_indicator",
+            "max_string_length": 101
+        },
+        "currentdwkey": {
+            "data_type": "VARCHAR(100)",
+            "db_column": "current_dw_key",
+            "max_string_length": 100
+        },
+        "defaultretailflag": {
+            "data_type": "SMALLINT",
+            "db_column": "default_retail_flag"
+        },
+        "divisioncode": {
+            "data_type": "SMALLINT",
+            "db_column": "division_code"
+        },
+        "divisiondescription": {
+            "data_type": "VARCHAR(120)",
+            "db_column": "division_description",
+            "max_string_length": 120
+        },
+        "documenttype": {
+            "data_type": "VARCHAR(103)",
+            "db_column": "document_type",
+            "max_string_length": 103
+        },
+        "dwkeyproduct": {
+            "data_type": "VARCHAR(100)",
+            "db_column": "dw_key_product",
+            "max_string_length": 100
+        },
+        "eichairmanclubflag": {
+            "data_type": "VARCHAR(101)",
+            "db_column": "ei_chairman_club_flag",
+            "max_string_length": 101
+        },
+        "fsncategory": {
+            "data_type": "VARCHAR(101)",
+            "db_column": "fsn_category",
+            "max_string_length": 101
+        },
+        "fsndescription": {
+            "data_type": "VARCHAR(121)",
+            "db_column": "fsn_description",
+            "max_string_length": 121
+        },
+        "grossweight": {
+            "data_type": "DOUBLE",
+            "db_column": "gross_weight"
+        },
+        "hsncode": {
+            "data_type": "DOUBLE",
+            "db_column": "hsn_code"
+        },
+        "hsndescription": {
+            "data_type": "VARCHAR(120)",
+            "db_column": "hsn_description",
+            "max_string_length": 120
+        },
+        "igst%": {
+            "data_type": "DOUBLE",
+            "db_column": "igst_percent"
+        },
+        "materialcode": {
+            "data_type": "VARCHAR(118)",
+            "db_column": "material_code",
+            "max_string_length": 118
+        },
+        "materialdescription": {
+            "data_type": "VARCHAR(140)",
+            "db_column": "material_description",
+            "max_string_length": 140
+        },
+        "materialgroup": {
+            "data_type": "VARCHAR(107)",
+            "db_column": "material_group",
+            "max_string_length": 107
+        },
+        "materialgroup1": {
+            "data_type": "SMALLINT",
+            "db_column": "material_group_1"
+        },
+        "materialgroup1description": {
+            "data_type": "VARCHAR(120)",
+            "db_column": "material_group_1_description",
+            "max_string_length": 120
+        },
+        "materialgroup2": {
+            "data_type": "SMALLINT",
+            "db_column": "material_group_2"
+        },
+        "materialgroup2description": {
+            "data_type": "VARCHAR(120)",
+            "db_column": "material_group_2_description",
+            "max_string_length": 120
+        },
+        "materialgroupdescription": {
+            "data_type": "VARCHAR(120)",
+            "db_column": "material_group_description",
+            "max_string_length": 120
+        },
+        "materialtype": {
+            "data_type": "VARCHAR(104)",
+            "db_column": "material_type",
+            "max_string_length": 104
+        },
+        "materialtypedescription": {
+            "data_type": "VARCHAR(125)",
+            "db_column": "material_type_description",
+            "max_string_length": 125
+        },
+        "materialvalidfrom": {
+            "data_type": "INTEGER",
+            "db_column": "material_valid_from"
+        },
+        "materialvalidto": {
+            "data_type": "INTEGER",
+            "db_column": "material_valid_to"
+        },
+        "maximumretailprice": {
+            "data_type": "DOUBLE",
+            "db_column": "maximum_retail_price"
+        },
+        "mothercode": {
+            "data_type": "VARCHAR(118)",
+            "db_column": "mother_code",
+            "max_string_length": 118
+        },
+        "mothercodedescription": {
+            "data_type": "VARCHAR(140)",
+            "db_column": "mother_code_description",
+            "max_string_length": 140
+        },
+        "mothermaterialaverageratecase": {
+            "data_type": "DOUBLE",
+            "db_column": "mother_material_average_rate_case"
+        },
+        "mothermaterialaveragerateeach": {
+            "data_type": "DOUBLE",
+            "db_column": "mother_material_average_rate_each"
+        },
+        "mothermaterialaverageratekg": {
+            "data_type": "DOUBLE",
+            "db_column": "mother_material_average_rate_kg"
+        },
+        "mothermaterialaverageratelitre": {
+            "data_type": "DOUBLE",
+            "db_column": "mother_material_average_rate_litre"
+        },
+        "mrprelevent": {
+            "data_type": "VARCHAR(101)",
+            "db_column": "mrp_relevent",
+            "max_string_length": 101
+        },
+        "mrpuom": {
+            "data_type": "VARCHAR(103)",
+            "db_column": "mrp_uom",
+            "max_string_length": 103
+        },
+        "netweight": {
+            "data_type": "DOUBLE",
+            "db_column": "net_weight"
+        },
+        "newhsncode": {
+            "data_type": "VARCHAR(109)",
+            "db_column": "new_hsn_code",
+            "max_string_length": 109
+        },
+        "oldmaterialnumber": {
+            "data_type": "VARCHAR(118)",
+            "db_column": "old_material_number",
+            "max_string_length": 118
+        },
+        "p2pindicator": {
+            "data_type": "VARCHAR(101)",
+            "db_column": "p_2_p_indicator",
+            "max_string_length": 101
+        },
+        "prdgroup1": {
+            "data_type": "VARCHAR(102)",
+            "db_column": "prd_group_1",
+            "max_string_length": 102
+        },
+        "prdgroup2": {
+            "data_type": "VARCHAR(104)",
+            "db_column": "prd_group_2",
+            "max_string_length": 104
+        },
+        "prdgroup3": {
+            "data_type": "VARCHAR(108)",
+            "db_column": "prd_group_3",
+            "max_string_length": 108
+        },
+        "prdgroup4": {
+            "data_type": "VARCHAR(112)",
+            "db_column": "prd_group_4",
+            "max_string_length": 112
+        },
+        "prdgroup5": {
+            "data_type": "VARCHAR(117)",
+            "db_column": "prd_group_5",
+            "max_string_length": 117
+        },
+        "prdgroupsecurity": {
+            "data_type": "VARCHAR(147)",
+            "db_column": "prd_group_security",
+            "max_string_length": 147
+        },
+        "pricetoretailer": {
+            "data_type": "DOUBLE",
+            "db_column": "price_to_retailer"
+        },
+        "pricevalidfrom": {
+            "data_type": "INTEGER",
+            "db_column": "price_valid_from"
+        },
+        "pricevalidto": {
+            "data_type": "INTEGER",
+            "db_column": "price_valid_to"
+        },
+        "productgroup1description": {
+            "data_type": "VARCHAR(140)",
+            "db_column": "product_group_1_description",
+            "max_string_length": 140
+        },
+        "productgroup2description": {
+            "data_type": "VARCHAR(140)",
+            "db_column": "product_group_2_description",
+            "max_string_length": 140
+        },
+        "productgroup3description": {
+            "data_type": "VARCHAR(140)",
+            "db_column": "product_group_3_description",
+            "max_string_length": 140
+        },
+        "productgroup4description": {
+            "data_type": "VARCHAR(140)",
+            "db_column": "product_group_4_description",
+            "max_string_length": 140
+        },
+        "productgroup5description": {
+            "data_type": "VARCHAR(131)",
+            "db_column": "product_group_5_description",
+            "max_string_length": 131
+        },
+        "productgroup6description": {
+            "data_type": "VARCHAR(122)",
+            "db_column": "product_group_6_description",
+            "max_string_length": 122
+        },
+        "productgroupdescriptionsecurity": {
+            "data_type": "VARCHAR(254)",
+            "db_column": "product_group_description_security",
+            "max_string_length": 254
+        },
+        "ptruom": {
+            "data_type": "VARCHAR(103)",
+            "db_column": "ptr_uom",
+            "max_string_length": 103
+        },
+        "reasoncode": {
+            "data_type": "SMALLINT",
+            "db_column": "reason_code"
+        },
+        "reasontext": {
+            "data_type": "VARCHAR(119)",
+            "db_column": "reason_text",
+            "max_string_length": 119
+        },
+        "recordvalidfrom": {
+            "data_type": "INTEGER",
+            "db_column": "record_valid_from"
+        },
+        "recordvalidto": {
+            "data_type": "VARCHAR(100)",
+            "db_column": "record_valid_to",
+            "max_string_length": 100
+        },
+        "reportingunit": {
+            "data_type": "VARCHAR(103)",
+            "db_column": "reporting_unit",
+            "max_string_length": 103
+        },
+        "revisedshelflife": {
+            "data_type": "SMALLINT",
+            "db_column": "revised_shelf_life"
+        },
+        "salesforecasting": {
+            "data_type": "VARCHAR(101)",
+            "db_column": "sales_forecasting",
+            "max_string_length": 101
+        },
+        "salesgroupcode": {
+            "data_type": "SMALLINT",
+            "db_column": "sales_group_code"
+        },
+        "salesorganizationcode": {
+            "data_type": "SMALLINT",
+            "db_column": "sales_organization_code"
+        },
+        "salesunit": {
+            "data_type": "VARCHAR(103)",
+            "db_column": "sales_unit",
+            "max_string_length": 103
+        },
+        "salesunitdescription": {
+            "data_type": "VARCHAR(109)",
+            "db_column": "sales_unit_description",
+            "max_string_length": 109
+        },
+        "sellingprice": {
+            "data_type": "DOUBLE",
+            "db_column": "selling_price"
+        },
+        "sgst%": {
+            "data_type": "DOUBLE",
+            "db_column": "sgst_percent"
+        },
+        "shorttext": {
+            "data_type": "VARCHAR(125)",
+            "db_column": "short_text",
+            "max_string_length": 125
+        },
+        "size/dimensions": {
+            "data_type": "VARCHAR(131)",
+            "db_column": "size_dimensions",
+            "max_string_length": 131
+        },
+        "spuom": {
+            "data_type": "VARCHAR(103)",
+            "db_column": "spu_om",
+            "max_string_length": 103
+        },
+        "statusdescription": {
+            "data_type": "VARCHAR(125)",
+            "db_column": "status_description",
+            "max_string_length": 125
+        },
+        "totalshelflifedays": {
+            "data_type": "SMALLINT",
+            "db_column": "total_shelf_life_days"
+        },
+        "ugst%": {
+            "data_type": "DOUBLE",
+            "db_column": "ugst_percent"
+        },
+        "volume": {
+            "data_type": "DOUBLE",
+            "db_column": "volume"
+        },
+        "volumeunit": {
+            "data_type": "VARCHAR(103)",
+            "db_column": "volume_unit",
+            "max_string_length": 103
+        },
+        "weightunit": {
+            "data_type": "VARCHAR(103)",
+            "db_column": "weight_unit",
+            "max_string_length": 103
+        }
+    }
+}

@@ -5,17 +5,16 @@ Stores unique Sales Group codes and their corresponding divisions and verticals
 
 TABLE = {
     "order": 5,
-    "name": "DimSalesGroup",
-    "schema": """CREATE TABLE DimSalesGroup (
-            Division VARCHAR(50) NOT NULL,
-            SalesGroup SMALLINT NOT NULL,
-            Vertical VARCHAR(50) NOT NULL
+    "name": "dim_sales_group",
+    "schema": """CREATE TABLE dim_sales_group (
+            division VARCHAR(50) NOT NULL,
+            sales_group SMALLINT NOT NULL,
+            vertical VARCHAR(50) NOT NULL
         )
-        DISTRIBUTED BY HASH(SalesGroup) BUCKETS 10
+        DISTRIBUTED BY HASH(sales_group) BUCKETS 10
         PROPERTIES (
             "replication_num" = "1"
         );""",
-    "seed_file": "DimSalesGroup.csv",
     "comments": {
         "table": "Stores unique Sales Group codes and their corresponding divisions and verticals.",
         "columns": {},

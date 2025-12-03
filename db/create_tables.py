@@ -6,7 +6,6 @@ Creates tables, views, and other database objects with proper logging and error 
 import sys
 import time
 import logging
-import csv
 from pathlib import Path
 from typing import List, Dict, Optional
 import pymysql
@@ -49,9 +48,7 @@ class StarRocksTableManager:
         """Establish connection to StarRocks"""
         try:
             self.print_info("🔌 Connecting to StarRocks...", Fore.CYAN)
-            logger.info(
-                f"Connecting to StarRocks at {self.config['host']}:{self.config['port']}"
-            )
+            logger.info(f"Connecting to StarRocks at {self.config['host']}:{self.config['port']}")
 
             self.connection = pymysql.connect(
                 host=self.config["host"],
@@ -63,9 +60,7 @@ class StarRocksTableManager:
                 autocommit=self.config["autocommit"],
             )
 
-            self.print_success(
-                f"Connected to StarRocks database '{self.config['database']}'"
-            )
+            self.print_success(f"Connected to StarRocks database '{self.config['database']}'")
             logger.info("Successfully connected to StarRocks")
             return self.connection
 
@@ -100,9 +95,7 @@ class StarRocksTableManager:
         """Print info message"""
         print(f"{Style.BRIGHT}{color}{message}{Style.RESET_ALL}")
 
-    def execute_query(
-        self, query: str, description: str = "", max_retries: int = 3
-    ) -> bool:
+    def execute_query(self, query: str, description: str = "", max_retries: int = 3) -> bool:
         """Execute SQL query with retry logic"""
         cursor = None
         try:
@@ -126,12 +119,8 @@ class StarRocksTableManager:
                         self.print_error(f"Failed to execute {description}: {e}")
                         return False
 
-                    self.print_warning(
-                        f"Retrying {description} ({retries}/{max_retries})..."
-                    )
-                    logger.warning(
-                        f"Retry {retries}/{max_retries} for {description}: {e}"
-                    )
+                    self.print_warning(f"Retrying {description} ({retries}/{max_retries})...")
+                    logger.warning(f"Retry {retries}/{max_retries} for {description}: {e}")
                     time.sleep(1)
 
                 except Exception as e:
@@ -166,9 +155,7 @@ class StarRocksTableManager:
         logger.info(f"Creating view: {view_name}")
 
         # Drop existing view
-        if not self.execute_query(
-            f"DROP VIEW IF EXISTS {view_name}", f"drop view {view_name}"
-        ):
+        if not self.execute_query(f"DROP VIEW IF EXISTS {view_name}", f"drop view {view_name}"):
             return False
 
         # Create view
@@ -190,9 +177,7 @@ class StarRocksTableManager:
         logger.info(f"Creating table: {table_name}")
 
         # Drop existing table
-        if not self.execute_query(
-            f"DROP TABLE IF EXISTS {table_name}", f"drop table {table_name}"
-        ):
+        if not self.execute_query(f"DROP TABLE IF EXISTS {table_name}", f"drop table {table_name}"):
             return False
 
         # Execute pre-create steps
@@ -206,11 +191,6 @@ class StarRocksTableManager:
         schema = table["schema"]
         if not self.execute_query(schema, f"create table {table_name}"):
             return False
-
-        # Load seed data from CSV if specified
-        if table.get("seed_file"):
-            if not self._load_seed_data(table):
-                self.print_warning(f"Seed data loading failed for {table_name}")
 
         # Execute post-create steps (INSERT statements, etc.)
         for step in sorted(table.get("post_create_steps", []), key=lambda x: x["step"]):
@@ -246,80 +226,7 @@ class StarRocksTableManager:
         except Exception as e:
             logger.warning(f"Error handling comments for {table['name']}: {e}")
 
-    def _load_seed_data(self, table: Dict) -> bool:
-        """Load seed data from CSV file"""
-        table_name = table["name"]
-        seed_file = table.get("seed_file")
-
-        if not seed_file:
-            return True
-
-        seed_path = PROJECT_ROOT / "db" / "seeds" / seed_file
-
-        try:
-            self.print_info(f"🌱 Loading seed data from {seed_file}...", Fore.MAGENTA)
-            logger.info(f"Loading seed data for {table_name} from {seed_path}")
-
-            # Check if file exists
-            if not seed_path.exists():
-                self.print_error(f"Seed file not found: {seed_path}")
-                logger.error(f"Seed file not found: {seed_path}")
-                return False
-
-            # Read CSV file
-            with open(seed_path, 'r', encoding='utf-8') as csvfile:
-                reader = csv.DictReader(csvfile)
-                rows = list(reader)
-
-                if not rows:
-                    self.print_warning(f"No data found in {seed_file}")
-                    logger.warning(f"No data in seed file: {seed_file}")
-                    return True
-
-                # Get column names from CSV header
-                columns = list(rows[0].keys())
-
-                # Build INSERT statement
-                placeholders = ', '.join(['%s'] * len(columns))
-                column_names = ', '.join(columns)
-                insert_query = f"INSERT INTO {table_name} ({column_names}) VALUES ({placeholders})"
-
-                # Insert data in batches
-                batch_size = 100
-                cursor = self.connection.cursor()
-
-                try:
-                    total_rows = len(rows)
-                    for i in range(0, total_rows, batch_size):
-                        batch = rows[i:i + batch_size]
-                        values = [tuple(row[col] for col in columns) for row in batch]
-
-                        cursor.executemany(insert_query, values)
-                        self.connection.commit()
-
-                        logger.debug(f"Inserted batch {i//batch_size + 1}: {len(batch)} rows")
-
-                    self.print_success(f"Loaded {total_rows} rows from {seed_file}")
-                    logger.info(f"Successfully loaded {total_rows} rows into {table_name}")
-                    return True
-
-                except Exception as e:
-                    self.connection.rollback()
-                    logger.error(f"Error inserting seed data: {e}", exc_info=True)
-                    self.print_error(f"Failed to insert seed data: {e}")
-                    return False
-
-                finally:
-                    cursor.close()
-
-        except Exception as e:
-            logger.error(f"Error loading seed file {seed_file}: {e}", exc_info=True)
-            self.print_error(f"Error loading seed file: {e}")
-            return False
-
-    def create_multiple_tables(
-        self, tables: List[Dict], skip_indexes: bool = False
-    ) -> tuple:
+    def create_multiple_tables(self, tables: List[Dict], skip_indexes: bool = False) -> tuple:
         """Create multiple tables/views"""
         start_time = time.time()
         success_count = 0
@@ -336,9 +243,7 @@ class StarRocksTableManager:
 
         elapsed_time = time.time() - start_time
 
-        self.print_info(
-            f"\n{'='*60}\n📊 Summary\n{'='*60}", Fore.CYAN
-        )
+        self.print_info(f"\n{'='*60}\n📊 Summary\n{'='*60}", Fore.CYAN)
         self.print_success(f"Created: {success_count} object(s)")
         if failed_count > 0:
             self.print_error(f"Failed: {failed_count} object(s)")
@@ -442,9 +347,7 @@ def display_menu():
     while True:
         try:
             print(f"\n{Style.BRIGHT}{Fore.CYAN}{'='*60}{Style.RESET_ALL}")
-            print(
-                f"{Style.BRIGHT}{Fore.CYAN}🔧 StarRocks Database Setup Menu{Style.RESET_ALL}"
-            )
+            print(f"{Style.BRIGHT}{Fore.CYAN}🔧 StarRocks Database Setup Menu{Style.RESET_ALL}")
             print(f"{Style.BRIGHT}{Fore.CYAN}{'='*60}{Style.RESET_ALL}")
 
             print(f"\n{Style.BRIGHT}{Fore.BLUE}Creation Operations:{Style.RESET_ALL}")

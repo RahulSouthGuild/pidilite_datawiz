@@ -1,0 +1,20 @@
+{
+    "table_name": "dim_sales_group",
+    "description": "dim_sales_group mapping (Parquet \u2192 Database)",
+    "columns": {
+        "division": {
+            "data_type": "VARCHAR(50)",
+            "db_column": "division",
+            "max_string_length": 50
+        },
+        "salesgroup": {
+            "data_type": "SMALLINT",
+            "db_column": "sales_group"
+        },
+        "vertical": {
+            "data_type": "VARCHAR(50)",
+            "db_column": "vertical",
+            "max_string_length": 50
+        }
+    }
+}

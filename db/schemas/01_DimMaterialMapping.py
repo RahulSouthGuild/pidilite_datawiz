@@ -5,20 +5,20 @@ Stores the mapping of material codes to their final classifications
 
 TABLE = {
     "order": 1,
-    "name": "DimMaterialMapping",
-    "schema": """CREATE TABLE DimMaterialMapping (
-    Brand VARCHAR(118),
-    FinalClassification VARCHAR(118),
-    MaterialCode VARCHAR(118),
-    ParentDivisionCode VARCHAR(118),
-    ParentDivisionName VARCHAR(118),
-    ProductGroup1Description VARCHAR(140),
-    ProductGroup2Description VARCHAR(140),
-    ProductGroup3Description VARCHAR(140),
-    Vertical VARCHAR(50),
-    MaterialCodeSGKey VARCHAR(118)
+    "name": "dim_material_mapping",
+    "schema": """CREATE TABLE dim_material_mapping (
+    brand VARCHAR(118),
+    final_classification VARCHAR(118),
+    material_code VARCHAR(118),
+    parent_division_code VARCHAR(118),
+    parent_division_name VARCHAR(118),
+    product_group_1_description VARCHAR(140),
+    product_group_2_description VARCHAR(140),
+    product_group_3_description VARCHAR(140),
+    vertical VARCHAR(50),
+    material_code_sg_key VARCHAR(118)
 )
-DISTRIBUTED BY HASH(MaterialCode) BUCKETS 10
+DISTRIBUTED BY HASH(material_code) BUCKETS 10
 PROPERTIES (
     "replication_num" = "1"
 );
@@ -26,8 +26,8 @@ PROPERTIES (
     "comments": {
         "table": "Stores the mapping of material codes to their final classifications.",
         "columns": {
-            "MaterialCode": "Unique code for the material. This field identifies each record distinctly.",
-            "FinalClassification": "Final classification of the material.",
+            "material_code": "Unique code for the material. This field identifies each record distinctly.",
+            "final_classification": "Final classification of the material.",
         },
     },
     "indexes": {},

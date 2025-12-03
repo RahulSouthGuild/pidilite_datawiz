@@ -5,22 +5,33 @@ Stores Row-Level Security (RLS) hierarchy paths for access control
 
 TABLE = {
     "order": 9,
-    "name": "RlsMaster",
-    "schema": """CREATE TABLE RlsMaster (
-                Cluster VARCHAR(200),
-                Division VARCHAR(50),
-                EmailID VARCHAR(200),
-                HierarchyPath VARCHAR(2000),
-                SalesGroup SMALLINT,
-                SH2 VARCHAR(200),
-                SH3 VARCHAR(200),
-                SH4 VARCHAR(200),
-                SH5 VARCHAR(200),
-                SH6 VARCHAR(200),
-                SH7 VARCHAR(200),
-                Vertical VARCHAR(50)
+    "name": "rls_master",
+    "schema": """CREATE TABLE rls_master (
+                cluster VARCHAR(200),
+                division VARCHAR(50),
+                email_id VARCHAR(200),
+                hierarchy_path VARCHAR(2000),
+                sales_group SMALLINT,
+                sh_2 VARCHAR(200),
+                sh_3 VARCHAR(200),
+                sh_4 VARCHAR(200),
+                sh_5 VARCHAR(200),
+                sh_6 VARCHAR(200),
+                sh_7 VARCHAR(200),
+                vertical VARCHAR(50)luster VARCHAR(200),
+                division VARCHAR(50),
+                email_id VARCHAR(200),
+                hierarchy_path VARCHAR(2000),
+                sales_group SMALLINT,
+                sh_2 VARCHAR(200),
+                sh_3 VARCHAR(200),
+                sh_4 VARCHAR(200),
+                sh_5 VARCHAR(200),
+                sh_6 VARCHAR(200),
+                sh_7 VARCHAR(200),
+                vertical VARCHAR(50)
             )
-            DISTRIBUTED BY HASH(EmailID) BUCKETS 10
+            DISTRIBUTED BY HASH(email_id) BUCKETS 10
             PROPERTIES (
                 "replication_num" = "1"
             );""",

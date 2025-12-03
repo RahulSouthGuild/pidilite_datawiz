@@ -1,0 +1,56 @@
+{
+    "table_name": "dim_material_mapping",
+    "description": "dim_material_mapping mapping (Parquet \u2192 Database)",
+    "columns": {
+        "brand": {
+            "data_type": "VARCHAR(118)",
+            "db_column": "brand",
+            "max_string_length": 118
+        },
+        "finalclassification": {
+            "data_type": "VARCHAR(118)",
+            "db_column": "final_classification",
+            "max_string_length": 118
+        },
+        "materialcode": {
+            "data_type": "VARCHAR(118)",
+            "db_column": "material_code",
+            "max_string_length": 118
+        },
+        "materialcodesgkey": {
+            "data_type": "VARCHAR(118)",
+            "db_column": "material_code_sg_key",
+            "max_string_length": 118
+        },
+        "parentdivisioncode": {
+            "data_type": "VARCHAR(118)",
+            "db_column": "parent_division_code",
+            "max_string_length": 118
+        },
+        "parentdivisionname": {
+            "data_type": "VARCHAR(118)",
+            "db_column": "parent_division_name",
+            "max_string_length": 118
+        },
+        "productgroup1description": {
+            "data_type": "VARCHAR(140)",
+            "db_column": "product_group_1_description",
+            "max_string_length": 140
+        },
+        "productgroup2description": {
+            "data_type": "VARCHAR(140)",
+            "db_column": "product_group_2_description",
+            "max_string_length": 140
+        },
+        "productgroup3description": {
+            "data_type": "VARCHAR(140)",
+            "db_column": "product_group_3_description",
+            "max_string_length": 140
+        },
+        "vertical": {
+            "data_type": "VARCHAR(50)",
+            "db_column": "vertical",
+            "max_string_length": 50
+        }
+    }
+}
